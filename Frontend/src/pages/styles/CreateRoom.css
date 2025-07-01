@@ -1,0 +1,459 @@
+/* General layout styles for CreateRoom component */
+.create-room-container {
+    min-height: 100vh;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    position: relative;
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  .create-room-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0;
+    gap: 2rem;
+    box-sizing: border-box;
+  }
+  
+  .create-room-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    background: linear-gradient(60deg, #328E6E, #328E6E);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 2rem;
+    text-shadow: 2px 2px 6px rgb(225, 238, 188);
+  }
+  
+  .play-card {
+    background: #67AE6E;
+    padding: 2.5rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 900px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  
+  .settings-card {
+    flex: 1;
+  }
+  
+  .players-card {
+    flex: 1;
+  }
+  
+  .card-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: left;
+    letter-spacing: 0.025em;
+  }
+  
+  .error-message {
+    color: red;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  /* Form groups wrapper */
+  .form-groups-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+  }
+  
+  /* Form group styling */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    color: black;
+  }
+  
+  /* Form label styling */
+  .form-label {
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: left;
+    color: #e5e7eb;
+  }
+  
+  /* Input field styling */
+  .input-field {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #1f2937;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+  
+  .input-field:focus {
+    border-color: #E1EEBC;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  }
+  
+  /* Theme dropdown styling */
+  .theme-dropdown {
+    position: relative;
+    width: 100%;
+  }
+  
+  .theme-dropdown button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .theme-dropdown .absolute {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-left: 8px;
+    box-sizing: border-box;
+  }
+  
+  .theme-dropdown label {
+    text-align: left;
+    width: 50%; 
+    padding-left: 10; 
+    justify-content: flex-start;
+    margin: 15px;
+  }
+  
+  /* Players list styles */
+  .players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .player-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .player-avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .player-name {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #e5e7eb;
+  }
+  
+  /* Additional styles for room link and code */
+  .players-list p {
+    color: #e5e7eb;
+    font-size: 1rem;
+    line-height: 2;
+  }
+  
+  .players-list a {
+    color: #90C67C;
+    transition: color 0.2s ease;
+  }
+  
+  .players-list a:hover {
+    color: #90C67C;
+  }
+  
+  
+  .mt-4 {
+    margin-top: 1rem;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 1024px) {
+    .create-room-content {
+      max-width: 90%;
+      gap: 1.5rem;
+    }
+  
+    .play-card {
+      padding: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .create-room-container {
+      padding: 0.5rem;
+      min-height: auto;
+    }
+  
+    .create-room-content {
+      flex-direction: column;
+      max-width: 100%;
+      gap: 1.5rem;
+      padding: 0.5rem;
+      width: 100%;
+    }
+  
+    .play-card {
+      max-width: 100%;
+      padding: 1.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  
+    .card-title {
+      font-size: 1.5rem;
+    }
+  
+    .form-label {
+      font-size: 1rem;
+    }
+  
+    .input-field {
+      padding: 0.75rem 1rem;
+    }
+  
+    .player-avatar {
+      width: 3rem;
+      height: 3rem;
+    }
+  
+    .player-name {
+      font-size: 1.125rem;
+    }
+  
+    .theme-dropdown .absolute {
+      width: calc(100% - 16px);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .create-room-container {
+      padding: 0.25rem;
+    }
+  
+    .create-room-content {
+      padding: 0.25rem;
+    }
+  
+    .play-card {
+      padding: 1rem;
+      margin: 0;
+    }
+  
+    .form-groups-wrapper {
+      width: 100%;
+    }
+  
+    .form-group {
+      width: 100%;
+    }
+  
+    .input-field {
+      width: 100%;
+    }
+  
+    .create-room-title {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+  
+    .card-title {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+  
+    .form-label {
+      font-size: 0.875rem;
+    }
+  
+    .input-field {
+      padding: 0.625rem 0.875rem;
+      font-size: 0.875rem;
+    }
+  
+    .button-primary {
+      padding: 0.625rem 0.875rem;
+      font-size: 0.875rem;
+    }
+  
+    .player-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  
+    .player-name {
+      font-size: 1rem;
+    }
+  
+    .theme-dropdown button {
+      padding: 0.625rem 0.875rem;
+      font-size: 0.875rem;
+    }
+  
+    .theme-dropdown label {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+  
+  @media (max-width: 360px) {
+    .create-room-title {
+      font-size: 1.5rem;
+    }
+  
+    .play-card {
+      padding: 0.75rem;
+    }
+  
+    .form-groups-wrapper {
+      gap: 1rem;
+    }
+  
+    .form-group {
+      gap: 0.5rem;
+    }
+  }
+
+  .players-bar-wrapper {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 2rem auto; /* Center and add bottom margin */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+  }
+  .create-room-players-bar-container {
+    background: #90C67C;
+    border-radius: 0 0 0.75rem 0.75rem;
+  }
+  
+  .players-bar-title {
+    width: 100%;
+    text-align: center;
+    font-size: 1.5rem; /* Slightly larger title */
+    font-weight: 800;
+    color: #328E6E;
+    margin-bottom: 0;
+    letter-spacing: 0.05em;
+    background: #E1EEBC;
+    padding: 0.75rem 0; /* More vertical padding */
+    border-radius: 0.75rem 0.75rem 0 0;
+    box-shadow: 0 2px 8px rgba(50, 142, 110, 0.05);
+    box-sizing: border-box;
+  }
+  
+
+  
+  .player-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px; /* Slightly larger minimum card width */
+  }
+  
+  .player-avatar {
+    width: 80px; /* Larger avatars */
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid #E1EEBC;
+    background: #67AE6E;
+    object-fit: cover;
+  }
+  
+  .player-name {
+    margin-top: 0.75rem; /* More space below avatar */
+    color: #E1EEBC;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  /* Styles for Players Bar and Title in Create Room */
+  .create-room-players-section {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.75rem; /* Border radius */
+    box-shadow: 0 2px 8px rgba(50, 142, 110, 0.05); /* Box shadow */
+  }
+
+  .create-room-players-title {
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #E1EEBC; /* Title text color */
+    margin-bottom: 0;
+    letter-spacing: 0.05em;
+    background: #67AE6E; /* Title background color */
+    padding: 0.5rem 0;
+    border-radius: 0.75rem 0.75rem 0 0; /* Border radius for top corners */
+    box-sizing: border-box;
+  }
+
+  /* Styles for Themes Selector and Title in Create Room */
+  .create-room-themes-section {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto; /* Center the section */
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.75rem; /* Border radius */
+    box-shadow: 0 2px 8px rgba(50, 142, 110, 0.05); /* Box shadow */
+  }
+
+  .create-room-themes-title {
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem; /* Match players title size */
+    font-weight: 800;
+    margin-bottom: 0;
+    letter-spacing: 0.05em;
+    background: #67AE6E; /* Match players title background */
+    padding: 0.5rem 0; /* Match players title padding */
+    border-radius: 0.75rem 0.75rem 0 0; /* Border radius for top corners */
+    box-sizing: border-box;
+  }
+
+  .create-room-themes-selector-container {
+    background: #90C67C;
+    border-radius: 0 0 0.75rem 0.75rem;
+  }

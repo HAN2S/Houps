@@ -1,0 +1,134 @@
+.game-settings-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns */
+    gap: 2rem; /* Gap between columns */
+    width: 100%;
+    align-items: flex-start; /* Align items to the top */
+}
+
+.settings-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Gap between settings items */
+}
+
+.qr-link-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items horizontally */
+    gap: 1.5rem;
+}
+
+.qr-code-placeholder {
+    width: 180px; /* Size based on a typical QR code */
+    height: 180px;
+    background: #E1EEBC; /* Placeholder background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    color: #328E6E;
+    font-weight: bold;
+}
+
+.room-code-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem; /* Larger code */
+    font-weight: bold;
+    color: #E1EEBC; /* Match title color */
+}
+
+.room-code-label {
+    /* Optional: style for the "Code:" label */
+}
+
+.room-code-value {
+     /* Optional: style for the actual code value */
+}
+
+/* Inherit input-field and button styles from global or Buttons.css */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .settings-grid {
+        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+    }
+
+    .qr-link-column {
+        order: -1; /* Place QR/Link column above settings column */
+    }
+}
+
+.game-settings-title-bar {
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #E1EEBC;
+    margin-bottom: 0;
+    letter-spacing: 0.05em;
+    background: #67AE6E;
+    padding: 0.5rem 0;
+    border-radius: 0.75rem 0.75rem 0 0;
+    box-shadow: 0 2px 8px rgba(50, 142, 110, 0.05);
+    box-sizing: border-box;
+}
+
+.game-settings-content {
+    width: 100%;
+    background: #90C67C;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2rem;
+    border-radius: 0 0 0.75rem 0.75rem;
+    box-sizing: border-box;
+}
+
+/* Form group styling */
+.form-group {
+    display: flex;
+    /* Changed to horizontal layout */
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem; /* Adjust gap as needed */
+    width: 100%;
+    color: black;
+    justify-content: space-between; /* Distribute space between label and input */
+}
+
+/* Form label styling */
+.form-label {
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: left;
+    color: #E1EEBC; /* Changed label color to match PlayersBar text */
+    flex-shrink: 0; /* Prevent label from shrinking */
+}
+
+/* Input field styling */
+.input-field {
+    width: auto; /* Let width be determined by content or a specific size */
+    min-width: 80px; /* Set a minimum width for dropdowns */
+    max-width: 100px; /* Set a maximum width for dropdowns */
+    padding: 0.5rem 0.75rem; /* Adjust padding */
+    border: 1px solid #E1EEBC; /* Match border color */
+    border-radius: 0.5rem;
+    background: #E1EEBC; /* Match background color */
+    color: #328E6E; /* Match text color */
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    cursor: pointer;
+}

@@ -1,0 +1,19 @@
+spring:
+  security:
+    basic:
+      enabled: false
+    user:
+      name: admin
+      password: admin123
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    disable-swagger-default-url: true
+  api-docs:
+    path: /v3/api-docs
+    enabled: true 

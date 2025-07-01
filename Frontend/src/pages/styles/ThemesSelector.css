@@ -1,0 +1,57 @@
+.themes-selector-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.themes-selector-grid-content {
+     /* Removed padding as it's handled by the card itself now */
+    
+    gap: 1rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 1rem 0.5rem;
+    overflow-x: auto;
+    border-radius: 0 0 0.75rem 0.75rem;
+    box-sizing: border-box;
+}
+
+.themes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    width: 100%;
+    padding: 0;
+}
+
+.theme-button {
+    background: #E1EEBC;
+    color: #328E6E;
+    border: 2px solid #90C67C;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    text-align: center;
+}
+
+.theme-button:hover {
+    background: #E1EEBC;
+    border-color: #E1EEBC;
+}
+
+.theme-button.selected {
+    background: #328E6E;
+    color: #E1EEBC;
+    border-color: #328E6E;
+} 

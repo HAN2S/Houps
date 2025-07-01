@@ -1,0 +1,246 @@
+.score-screen-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.score-screen-container h1 {
+  color: #67AE6E;
+  margin-bottom: 40px;
+  font-size: 2.5em;
+}
+
+.podium-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0;
+  margin: 2rem 0;
+  width: 100%;
+  max-width: 900px;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.podium-spot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  min-width: 120px;
+  position: relative;
+  box-shadow: none;
+}
+
+.podium-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.podium-player.single-player {
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+}
+
+.podium-spot.multiple-players {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.podium-spot.multiple-players .podium-players-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.podium-score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  margin-top: auto;
+  padding-bottom: 0.5rem;
+}
+
+.podium-spot.first-place {
+  order: 2;
+  background: linear-gradient(to bottom, #FFD700, #DAA520);
+  height: 250px;
+  z-index: 3;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.podium-spot.second-place {
+  order: 1;
+  background: linear-gradient(to bottom, #C0C0C0, #A9A9A9);
+  height: 200px;
+  z-index: 2;
+  border-radius: 8px 0 0 0;
+  box-shadow: -4px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.podium-spot.third-place {
+  order: 3;
+  background: linear-gradient(to bottom, #CD7F32, #8B4513);
+  height: 150px;
+  z-index: 1;
+  border-radius: 0 8px 0 0;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.other-players-list {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 800px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.player-rank {
+  font-weight: bold;
+  min-width: 2rem;
+  margin-right: 15px;
+  width: 30px;
+  text-align: right;
+  color: #333;
+}
+
+.player-list-pseudo {
+  flex: 1;
+  color: #333;
+}
+
+.player-list-score {
+  font-weight: bold;
+  color: #67AE6E;
+}
+
+.back-home-button {
+  margin-top: 40px;
+  padding: 10px 20px;
+  background-color: #67AE6E;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.back-home-button:hover {
+  background-color: #5aa162;
+}
+
+/* Large screens (1200px and up) */
+@media screen and (min-width: 1200px) {
+  .podium-container {
+    max-width: 1100px;
+  }
+  
+  .podium-spot {
+    min-width: 150px;
+  }
+}
+
+/* Medium screens (768px to 1199px) */
+@media screen and (max-width: 1199px) {
+  .podium-container {
+    max-width: 900px;
+  }
+  
+  .podium-spot {
+    min-width: 130px;
+  }
+}
+
+/* Small screens (576px to 767px) */
+@media screen and (max-width: 767px) {
+  .podium-container {
+    max-width: 100%;
+  }
+  
+  .podium-spot {
+    min-width: 100px;
+    padding: 0.75rem;
+  }
+  
+  .first-place {
+    height: 180px;
+  }
+  
+  .second-place {
+    height: 150px;
+  }
+  
+  .third-place {
+    height: 120px;
+  }
+  
+  .podium-score {
+    font-size: 1.2rem;
+  }
+}
+
+/* Extra small screens (up to 575px) */
+@media screen and (max-width: 575px) {
+  .podium-spot {
+    min-width: 90px;
+    padding: 0.5rem;
+  }
+  
+  .first-place {
+    height: 160px;
+  }
+  
+  .second-place {
+    height: 130px;
+  }
+  
+  .third-place {
+    height: 100px;
+  }
+  
+  .podium-score {
+    font-size: 1rem;
+  }
+  
+  .podium-spot.multiple-players .podium-players-container {
+    gap: 0.5rem;
+  }
+}
+
+.fireworks-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+} 
