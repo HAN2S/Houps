@@ -1,35 +1,35 @@
 import React from 'react';
 import AnswerChoice from './AnswerChoice';
 import './styles/AnswerChoices.css';
-
-interface Player {
-  pseudo: string;
-  avatar: string;
-  score: number;
-  selectedAnswer?: string;
-  writtenAnswer?: string;
-}
+import type { Player } from '../types/Player';
 
 interface AnswerChoicesProps {
-  choices: string[];
+  session: any;
   selectedAnswer: string | null;
   onAnswerSelect: (answer: string) => void;
-  players?: Player[];
   showPlayerAnswers?: boolean;
   interactive?: boolean;
 }
 
 const AnswerChoices: React.FC<AnswerChoicesProps> = ({
-  choices,
+  session,
   selectedAnswer,
   onAnswerSelect,
-  players = [],
   showPlayerAnswers = false,
   interactive = true
 }) => {
+  const choices = Array.isArray(session.finalOptions) ? session.finalOptions : [];
+  console.log('QuizScreenMCQ choices for AnswerChoices:', choices);
+  const players: Player[] = session.players.map((p: any) => ({
+    username: p.username,
+    avatarUrl: p.avatarUrl,
+    score: p.score,
+    selectedAnswer: p.currentAnswer,
+    writtenAnswer: p.wrongAnswerSubmitted,
+  })) ;
   return (
     <div className="answer-choices quiz-answers">
-      {choices.map((choice, index) => (
+      {choices.map((choice: string, index: number) => (
         <AnswerChoice
           key={index}
           answer={choice}

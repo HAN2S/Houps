@@ -211,6 +211,14 @@ public class GameService {
     private void checkAllWrongAnswersSubmitted(GameSession session) {
         boolean allSubmitted = session.getPlayers().stream().allMatch(Player::isHasAnswered);
         if (allSubmitted) {
+            // Prepare final options for MCQ phase
+            Question currentQuestion = getLoadedCurrentQuestion(session);
+            Set<String> wrongAnswers = collectWrongAnswers(session);
+            int numberOfPlayers = session.getPlayers().size();
+            List<String> finalOptions = questionService.prepareFinalOptions(currentQuestion, wrongAnswers, numberOfPlayers);
+            logger.info("[checkAllWrongAnswersSubmitted] Setting finalOptions: {}", finalOptions);
+            session.setFinalOptions(finalOptions);
+
             session.setCurrentPhase(GameSession.QuestionPhase.MCQ_ANSWERING);
             // Reset hasAnswered for MCQ phase
             session.getPlayers().forEach(p -> p.setHasAnswered(false));
@@ -243,8 +251,8 @@ public class GameService {
     private void checkAllMCQAnswersSubmittedOrTimeout(GameSession session) {
         boolean allAnswered = session.getPlayers().stream().allMatch(Player::isHasAnswered);
         if (allAnswered /* or timer expired */) {
-            session.setCurrentPhase(GameSession.QuestionPhase.SCORE_DISPLAY);
-            // Reset hasAnswered for next round
+            updateScores(session);
+            session.setCurrentPhase(GameSession.QuestionPhase.ANSWERS_REVEAL);
             session.getPlayers().forEach(p -> p.setHasAnswered(false));
             saveSession(session);
             roomWebSocketController.broadcastRoomUpdate(session.getSessionId(), session);
@@ -323,11 +331,13 @@ public class GameService {
     private Set<String> collectWrongAnswers(GameSession session) {
         Question currentQuestion = getLoadedCurrentQuestion(session);
         if (currentQuestion == null) return Collections.emptySet();
-        return session.getPlayers().stream()
+        Set<String> wrongAnswers = session.getPlayers().stream()
                 .filter(Player::isHasAnswered)
                 .map(Player::getWrongAnswerSubmitted)
-                .filter(answer -> answer != null && !questionService.isCorrectAnswer(currentQuestion, answer))
+                .filter(answer -> answer != null && !questionService.isCorrectAnswer(currentQuestion, answer) && !answer.isEmpty())
                 .collect(Collectors.toSet());
+        logger.info("[collectWrongAnswers] wrong answers collected: {}", wrongAnswers);
+        return wrongAnswers;
     }
 
     private void updateScores(GameSession session) {
@@ -500,5 +510,48 @@ public class GameService {
         }
         saveSession(session);
         roomWebSocketController.broadcastRoomUpdate(sessionId, session);
+    }
+
+    public void handleWrongAnswerTimeout(GameSession session) {
+        // Prepare final options for MCQ phase even if not all players submitted
+        Question currentQuestion = getLoadedCurrentQuestion(session);
+        Set<String> wrongAnswers = collectWrongAnswers(session);
+        int numberOfPlayers = session.getPlayers().size();
+        List<String> finalOptions = questionService.prepareFinalOptions(currentQuestion, wrongAnswers, numberOfPlayers);
+        logger.info("[handleWrongAnswerTimeout] Setting finalOptions: {}", finalOptions);
+        session.setFinalOptions(finalOptions);
+
+        session.setCurrentPhase(GameSession.QuestionPhase.MCQ_ANSWERING);
+        // Reset hasAnswered for MCQ phase
+        session.getPlayers().forEach(p -> p.setHasAnswered(false));
+        saveSession(session);
+        roomWebSocketController.broadcastRoomUpdate(session.getSessionId(), session);
+    }
+
+    public void handleMCQAnswerTimeout(GameSession session) {
+        updateScores(session);
+        session.setCurrentPhase(GameSession.QuestionPhase.ANSWERS_REVEAL);
+        session.getPlayers().forEach(p -> p.setHasAnswered(false));
+        saveSession(session);
+        roomWebSocketController.broadcastRoomUpdate(session.getSessionId(), session);
+    }
+
+    public void moveToScoreDisplay(GameSession session) {
+        session.setCurrentPhase(GameSession.QuestionPhase.SCORE_DISPLAY);
+        saveSession(session);
+        roomWebSocketController.broadcastRoomUpdate(session.getSessionId(), session);
+    }
+
+    public void resetGame(GameSession session) {
+        session.setCurrentRound(1);
+        session.setCurrentPhase(GameSession.QuestionPhase.LOBBY);
+        session.setStatus(GameSession.GameStatus.WAITING_FOR_PLAYERS);
+        session.setSelectedCategory(null);
+        session.setSelectedDifficulty(null);
+        session.setCurrentQuestionId(null);
+        session.setFinalOptions(new ArrayList<>());
+        session.getPlayers().forEach(playerService::resetPlayerState);
+        saveSession(session);
+        roomWebSocketController.broadcastRoomUpdate(session.getSessionId(), session);
     }
 } 

@@ -31,15 +31,15 @@ const AnswerChoice: React.FC<AnswerChoiceProps> = ({
             {playersWithSelectedAnswer.map((player, index) => (
               <PlayerAvatar
                 key={index}
-                pseudo={player.pseudo}
-                avatar={player.avatar}
+                pseudo={player.username}
+                avatar={player.avatarUrl}
                 size="small"
               />
             ))}
           </div>
           {playersWithWrittenAnswer.length > 0 && (
             <div className="answer-players">
-              Answer of: {playersWithWrittenAnswer.map(p => p.pseudo).join(', ')}
+              Answer of: {playersWithWrittenAnswer.map(p => p.username).join(', ')}
             </div>
           )}
         </>

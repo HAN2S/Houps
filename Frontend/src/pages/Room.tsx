@@ -55,6 +55,8 @@ const Room: React.FC = () => {
         return <QuizScreen session={session} />;
       case 'MCQ_ANSWERING':
         return <QuizScreenMCQ session={session} />;
+      case 'ANSWERS_REVEAL':
+        return <QuizScreenAnswers session={session} />;
       case 'SCORE_DISPLAY':
         return <ScoreScreen session={session} />;
       default:

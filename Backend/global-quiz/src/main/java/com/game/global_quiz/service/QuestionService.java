@@ -2,6 +2,8 @@ package com.game.global_quiz.service;
 
 import com.game.global_quiz.model.Question;
 import com.game.global_quiz.repository.QuestionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
@@ -10,6 +12,7 @@ import java.util.stream.Collectors;
 @Service
 public class QuestionService {
     private final QuestionRepository questionRepository;
+    private static final Logger logger = LoggerFactory.getLogger(QuestionService.class);
 
     public QuestionService(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
@@ -70,6 +73,7 @@ public class QuestionService {
     }
 
     public List<String> prepareFinalOptions(Question question, Set<String> wrongAnswers, int numberOfPlayers) {
+        logger.info("[prepareFinalOptions] correctAnswer: {}, wrongAnswers: {}, fallbackOptions: {}", question.getCorrectAnswer(), wrongAnswers, question.getFallbackOptions());
         List<String> finalOptions = new ArrayList<>();
         finalOptions.add(question.getCorrectAnswer());
         
@@ -89,7 +93,7 @@ public class QuestionService {
                 }
             }
         }
-
+        logger.info("[prepareFinalOptions] finalOptions: {}", finalOptions);
         Collections.shuffle(finalOptions);
         return finalOptions;
     }

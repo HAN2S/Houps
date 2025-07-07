@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import PlayersBar from './PlayersBar';
 import AnswerChoices from '../components/AnswerChoices';
@@ -14,19 +14,54 @@ interface QuizScreenMCQProps {
 const QuizScreenMCQ: React.FC<QuizScreenMCQProps> = ({ session }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<string>('');
+  const [question, setQuestion] = useState<any>(null);
   const currentPlayerId = localStorage.getItem('playerId');
-  const players = session.players || [];
-  const question = session.currentQuestion || session.question || null;
+  const players = Array.isArray(session.players) ? session.players : [];
+  const choices = Array.isArray(session.finalOptions) ? session.finalOptions : [];
+
   const timer = session.timer ?? session.timePerQuestion;
   const hasAnswered = players.find((p: any) => p.id === currentPlayerId)?.hasAnswered;
+  const [timeLeft, setTimeLeft] = useState(session.timePerQuestion);
+
+  // Fetch question by currentQuestionId
+  useEffect(() => {
+    if (!session.currentQuestionId) return;
+    fetch(`http://localhost:8081/api/questions/${session.currentQuestionId}`)
+      .then(res => res.json())
+      .then(data => setQuestion(data))
+      .catch(() => setQuestion(null));
+  }, [session.currentQuestionId]);
+
+  useEffect(() => {
+    setTimeLeft(session.timePerQuestion);
+  }, [session.currentQuestionId]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      if (!hasAnswered) {
+        // Auto-submit empty answer if not answered
+        handleAnswerSelect('');
+        // Notify backend to transition to ANSWERS_REVEAL phase
+        fetch(`http://localhost:8081/api/game/session/${session.sessionId}/mcq-answer-timeout`, {
+          method: 'POST',
+        });
+      }
+      return;
+    }
+    const interval = setInterval(() => {
+      setTimeLeft((prev: number) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timeLeft, hasAnswered]);
 
   const handleAnswerSelect = async (answer: string) => {
     if (hasAnswered) return;
     try {
-      await axios.post(`http://localhost:8081/api/game/${session.sessionId}/answer/mcq`, {
-        playerId: currentPlayerId,
-        answer,
-      });
+      if (!currentPlayerId) throw new Error('No playerId found');
+      await fetch(
+        `http://localhost:8081/api/game/session/${session.sessionId}/answer/mcq?playerId=${encodeURIComponent(currentPlayerId)}&answer=${encodeURIComponent(answer)}`,
+        { method: 'POST' }
+      );
       setError('');
     } catch (err) {
       setError('Error submitting answer');
@@ -34,8 +69,8 @@ const QuizScreenMCQ: React.FC<QuizScreenMCQProps> = ({ session }) => {
   };
 
   const mappedPlayers = players.map((p: any) => ({
-    pseudo: p.username,
-    avatar: p.avatarUrl,
+    username: p.username,
+    avatarUrl: p.avatarUrl,
     score: p.score,
   }));
 
@@ -63,7 +98,7 @@ const QuizScreenMCQ: React.FC<QuizScreenMCQProps> = ({ session }) => {
           />
         )}
         <AnswerChoices
-          choices={question?.choices || []}
+          session={session}
           onAnswerSelect={handleAnswerSelect}
           selectedAnswer={null}
         />

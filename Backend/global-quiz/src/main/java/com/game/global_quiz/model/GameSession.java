@@ -45,6 +45,7 @@ public class GameSession implements Serializable {
         DIFFICULTY_SELECTION,
         COLLECTING_WRONG_ANSWERS,
         MCQ_ANSWERING,
+        ANSWERS_REVEAL,
         SCORE_DISPLAY
     }
 

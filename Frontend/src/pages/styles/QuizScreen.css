@@ -575,3 +575,9 @@
     width: 95%;
   }
 }
+
+.answer-feedback.warning {
+  color: #67AE6E;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}

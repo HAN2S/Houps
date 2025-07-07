@@ -32,6 +32,9 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [timeLeft, setTimeLeft] = useState(session.timePerQuestion);
   const [answer, setAnswer] = useState('');
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<null | boolean>(null);
+  const [showCorrectWarning, setShowCorrectWarning] = useState(false);
 
   const players = session.players || [];
   const questionId = session.currentQuestionId;
@@ -44,6 +47,22 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
 
   // State to track screen width and player bar layout
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 1024);
+
+  // Helper to get playerId from localStorage
+  const playerId = localStorage.getItem('playerId');
+  const sessionId = session.sessionId;
+
+  const submitWrongAnswer = async (answerToSubmit: string) => {
+    if (!playerId || !sessionId) return;
+    try {
+      await fetch(`http://localhost:8081/api/game/session/${sessionId}/answer/wrong?playerId=${encodeURIComponent(playerId)}&answer=${encodeURIComponent(answerToSubmit)}`, {
+        method: 'POST',
+      });
+    } catch (err) {
+      // Optionally handle error
+      console.error('Failed to submit wrong answer', err);
+    }
+  };
 
   useEffect(() => {
     if (!questionId) {
@@ -59,15 +78,30 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
 
   useEffect(() => {
     setTimeLeft(timer);
+    setAnswer("");
+    setHasSubmitted(false);
+    setIsCorrect(null);
   }, [timer, questionId]);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      if (!hasSubmitted) {
+        setHasSubmitted(true);
+        setIsCorrect(null); // No answer submitted
+        submitWrongAnswer(''); // Empty string for no answer
+
+        // Notify backend that time is up (any client can do this)
+        fetch(`http://localhost:8081/api/game/session/${session.sessionId}/wrong-answer-timeout`, {
+          method: 'POST',
+        });
+      }
+      return;
+    }
     const interval = setInterval(() => {
       setTimeLeft((prev: number) => prev - 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [timeLeft]);
+  }, [timeLeft, hasSubmitted]);
 
   // Effect to update isSmallScreen on window resize
   useEffect(() => {
@@ -78,14 +112,23 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!answer) {
       alert(t('errorAnswer'));
       return;
     }
+    if (hasSubmitted) return;
+    if (question && answer.trim().toLowerCase() === question.correctAnswer.trim().toLowerCase()) {
+      setShowCorrectWarning(true);
+      return;
+    } else {
+      setShowCorrectWarning(false);
+    }
+    setHasSubmitted(true);
+    await submitWrongAnswer(answer);
+    setIsCorrect(false); // Always false for wrong answer phase
     setAnswer('');
-    // You can add your answer submission logic here
   };
 
   return (
@@ -127,14 +170,22 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
                   onChange={(e) => setAnswer(e.target.value)}
                   placeholder={t('typeAnswer')}
                   className="answer-input"
+                  disabled={hasSubmitted || timeLeft <= 0}
                 />
                 <button
                   type="submit"
                   className="submit-button"
+                  disabled={hasSubmitted || timeLeft <= 0}
                 >
                   {t('submit')}
                 </button>
               </div>
+              {showCorrectWarning && (
+                <div className="answer-feedback warning">
+                  {t('submitWrongAnswerWarning') || 'You found the correct answer! Please submit a wrong one to trick other players.'}
+                </div>
+              )}
+
             </form>
           </div>
         )}

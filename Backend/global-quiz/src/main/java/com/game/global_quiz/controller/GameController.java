@@ -268,4 +268,44 @@ public class GameController {
             return ResponseEntity.internalServerError().body(error);
         }
     }
+
+    @PostMapping("/session/{sessionId}/wrong-answer-timeout")
+    public ResponseEntity<Void> wrongAnswerTimeout(@PathVariable String sessionId) {
+        GameSession session = gameService.getSession(sessionId);
+        if (session == null) {
+            return ResponseEntity.notFound().build();
+        }
+        gameService.handleWrongAnswerTimeout(session);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/session/{sessionId}/mcq-answer-timeout")
+    public ResponseEntity<Void> mcqAnswerTimeout(@PathVariable String sessionId) {
+        GameSession session = gameService.getSession(sessionId);
+        if (session == null) {
+            return ResponseEntity.notFound().build();
+        }
+        gameService.handleMCQAnswerTimeout(session);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/session/{sessionId}/reveal-to-score")
+    public ResponseEntity<Void> revealToScore(@PathVariable String sessionId) {
+        GameSession session = gameService.getSession(sessionId);
+        if (session == null) {
+            return ResponseEntity.notFound().build();
+        }
+        gameService.moveToScoreDisplay(session);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/session/{sessionId}/reset")
+    public ResponseEntity<Void> resetGame(@PathVariable String sessionId) {
+        GameSession session = gameService.getSession(sessionId);
+        if (session == null) {
+            return ResponseEntity.notFound().build();
+        }
+        gameService.resetGame(session);
+        return ResponseEntity.ok().build();
+    }
 } 

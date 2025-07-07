@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import PlayerAvatar from '../components/PlayerAvatar';
 import { Fireworks } from 'fireworks-js';
 import './styles/ScoreScreen.css';
+import type { Player } from '../types/Player';
 
 interface ScoreScreenProps {
   session: any;
@@ -37,17 +38,25 @@ const useWindowSize = () => {
 const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
   const { t } = useTranslation();
   const { width } = useWindowSize();
-  const players = (session.players || []).map((p: any) => ({
-    pseudo: p.username,
-    avatar: p.avatarUrl,
+  const players: Player[] = Array.isArray(session.players) ? session.players.map((p: any) => ({
+    username: p.username,
+    avatarUrl: p.avatarUrl,
     score: p.score,
-  }));
+    selectedAnswer: p.currentAnswer,
+    writtenAnswer: p.wrongAnswerSubmitted,
+  })) : [];
   const currentRound = session.currentRound || 0;
   const totalRounds = session.totalRounds || 0;
 
   const [showFireworks, setShowFireworks] = useState(false);
   const fireworksContainerRef = useRef<HTMLDivElement>(null);
   const fireworksInstance = useRef<Fireworks | null>(null);
+  const [loading, setLoading] = useState(false);
+  const playerId = localStorage.getItem('playerId');
+  const hostPlayer = Array.isArray(session.players)
+    ? session.players.find((p: any) => p.host === true)
+    : null;
+  const isHost = hostPlayer && hostPlayer.id === playerId;
 
   // Sort players by score in descending order
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
@@ -74,6 +83,8 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
   const thirdPlacePlayers = getPlayersForRank(3);
 
   const otherPlayers = sortedPlayers.slice(firstPlacePlayers.length + secondPlacePlayers.length + thirdPlacePlayers.length);
+
+  const isLastRound = session.currentRound === session.totalRounds;
 
   useEffect(() => {
     if (currentRound === totalRounds && firstPlacePlayers.length > 0) {
@@ -151,7 +162,12 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
 
   return (
     <div className="score-screen-container">
-      <div id="fireworks-container" ref={fireworksContainerRef} className="fireworks-container" style={{ pointerEvents: showFireworks ? 'none' : 'auto' }}>
+      <div
+        id="fireworks-container"
+        ref={fireworksContainerRef}
+        className="fireworks-container"
+        style={{ pointerEvents: 'none' }}
+      >
         {/* Fireworks will be rendered inside this div by the utility */}
       </div>
       <h1>{t('Scoreboard')}</h1>
@@ -163,8 +179,8 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
             {secondPlacePlayers.length === 1 ? (
               <div className="podium-player single-player">
                 <PlayerAvatar
-                  pseudo={secondPlacePlayers[0].pseudo}
-                  avatar={secondPlacePlayers[0].avatar}
+                  pseudo={secondPlacePlayers[0].username}
+                  avatar={secondPlacePlayers[0].avatarUrl}
                   size={getAvatarSize()}
                   showName={true}
                   showScore={false}
@@ -172,11 +188,11 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
               </div>
             ) : (
               <div className="podium-players-container">
-                {secondPlacePlayers.map((player: any, index: number) => (
+                {secondPlacePlayers.map((player: Player, index: number) => (
                   <div key={index} className="podium-player">
                     <PlayerAvatar
-                      pseudo={player.pseudo}
-                      avatar={player.avatar}
+                      pseudo={player.username}
+                      avatar={player.avatarUrl}
                       size={getMultiplePlayersAvatarSize()}
                       showName={true}
                       showScore={false}
@@ -195,8 +211,8 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
             {firstPlacePlayers.length === 1 ? (
               <div className="podium-player single-player">
                 <PlayerAvatar
-                  pseudo={firstPlacePlayers[0].pseudo}
-                  avatar={firstPlacePlayers[0].avatar}
+                  pseudo={firstPlacePlayers[0].username}
+                  avatar={firstPlacePlayers[0].avatarUrl}
                   size={getAvatarSize()}
                   showName={true}
                   showScore={false}
@@ -204,11 +220,11 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
               </div>
             ) : (
               <div className="podium-players-container">
-                {firstPlacePlayers.map((player: any, index: number) => (
+                {firstPlacePlayers.map((player: Player, index: number) => (
                   <div key={index} className="podium-player">
                     <PlayerAvatar
-                      pseudo={player.pseudo}
-                      avatar={player.avatar}
+                      pseudo={player.username}
+                      avatar={player.avatarUrl}
                       size={getMultiplePlayersAvatarSize()}
                       showName={true}
                       showScore={false}
@@ -227,8 +243,8 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
             {thirdPlacePlayers.length === 1 ? (
               <div className="podium-player single-player">
                 <PlayerAvatar
-                  pseudo={thirdPlacePlayers[0].pseudo}
-                  avatar={thirdPlacePlayers[0].avatar}
+                  pseudo={thirdPlacePlayers[0].username}
+                  avatar={thirdPlacePlayers[0].avatarUrl}
                   size={getAvatarSize()}
                   showName={true}
                   showScore={false}
@@ -236,11 +252,11 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
               </div>
             ) : (
               <div className="podium-players-container">
-                {thirdPlacePlayers.map((player: any, index: number) => (
+                {thirdPlacePlayers.map((player: Player, index: number) => (
                   <div key={index} className="podium-player">
                     <PlayerAvatar
-                      pseudo={player.pseudo}
-                      avatar={player.avatar}
+                      pseudo={player.username}
+                      avatar={player.avatarUrl}
                       size={getMultiplePlayersAvatarSize()}
                       showName={true}
                       showScore={false}
@@ -259,11 +275,11 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
         <div className="other-players-container">
           <h3>{t('Other Players')}</h3>
           <div className="other-players-list">
-            {otherPlayers.map((player: any, index: number) => (
+            {otherPlayers.map((player: Player, index: number) => (
               <div key={index} className="other-player-item">
                 <PlayerAvatar
-                  pseudo={player.pseudo}
-                  avatar={player.avatar}
+                  pseudo={player.username}
+                  avatar={player.avatarUrl}
                   size="small"
                   showName={true}
                   showScore={true}
@@ -273,6 +289,26 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
           </div>
         </div>
       )}
+
+      <div className="score-next-section">
+        {isHost && (
+          <button
+            className="submit-button"
+            onClick={async () => {
+              setLoading(true);
+              if (isLastRound) {
+                await fetch(`http://localhost:8081/api/game/session/${session.sessionId}/reset`, { method: 'POST' });
+              } else {
+                await fetch(`http://localhost:8081/api/game/session/${session.sessionId}/next`, { method: 'POST' });
+              }
+              setLoading(false);
+            }}
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : isLastRound ? 'Back to Lobby' : t('Next Round')}
+          </button>
+        )}
+      </div>
     </div>
   );
 };
