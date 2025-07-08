@@ -6,6 +6,7 @@ import QuestionDisplay from '../components/QuestionDisplay';
 import TimerContainer from '../components/TimerContainer';
 import axios from 'axios';
 import './styles/QuizScreen.css';
+import RoundCounter from '../components/RoundCounter';
 
 interface QuizScreenMCQProps {
   session: any;
@@ -83,9 +84,7 @@ const QuizScreenMCQ: React.FC<QuizScreenMCQProps> = ({ session }) => {
             <TimerContainer timeLeft={timer} totalTime={session.timePerQuestion} />
           </div>
           <div className="grid-item">
-            <div className="round-counter">
-              {session.currentRound}/{session.totalRounds}
-            </div>
+            <RoundCounter currentRound={session.currentRound} totalRounds={session.totalRounds} />
           </div>
         </div>
       </div>

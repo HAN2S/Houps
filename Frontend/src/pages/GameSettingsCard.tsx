@@ -87,6 +87,7 @@ const GameSettingsCard: React.FC<GameSettingsCardProps> = ({
                 className="input-field" // Using input-field style
                 disabled={!isHost}
               >
+                <option value="3">3</option>
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="30">30</option>

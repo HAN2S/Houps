@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import PlayersBar from './PlayersBar';
 import QuestionDisplay from '../components/QuestionDisplay';
 import TimerContainer from '../components/TimerContainer';
+import RoundCounter from '../components/RoundCounter';
 import './styles/QuizScreen.css';
 
 interface Question {
@@ -143,9 +144,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
             />
           </div>
           <div className="grid-item">
-            <div className="round-counter">
-              {currentRound}/{totalRounds}
-            </div>
+            <RoundCounter currentRound={currentRound} totalRounds={totalRounds} />
           </div>
         </div>
       </div>

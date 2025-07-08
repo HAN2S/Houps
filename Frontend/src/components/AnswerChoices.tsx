@@ -9,6 +9,8 @@ interface AnswerChoicesProps {
   onAnswerSelect: (answer: string) => void;
   showPlayerAnswers?: boolean;
   interactive?: boolean;
+  fallbackOptions?: string[];
+  correctAnswer?: string;
 }
 
 const AnswerChoices: React.FC<AnswerChoicesProps> = ({
@@ -16,10 +18,12 @@ const AnswerChoices: React.FC<AnswerChoicesProps> = ({
   selectedAnswer,
   onAnswerSelect,
   showPlayerAnswers = false,
-  interactive = true
+  interactive = true,
+  fallbackOptions = [],
+  correctAnswer,
 }) => {
   const choices = Array.isArray(session.finalOptions) ? session.finalOptions : [];
-  console.log('QuizScreenMCQ choices for AnswerChoices:', choices);
+  console.log('Fallback anwsers:', fallbackOptions);
   const players: Player[] = session.players.map((p: any) => ({
     username: p.username,
     avatarUrl: p.avatarUrl,
@@ -38,6 +42,8 @@ const AnswerChoices: React.FC<AnswerChoicesProps> = ({
           showPlayers={showPlayerAnswers}
           players={players}
           interactive={interactive}
+          isCorrect={correctAnswer === choice}
+          isFallback={fallbackOptions.includes(choice)}
         />
       ))}
     </div>

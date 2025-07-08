@@ -4,6 +4,7 @@ import PlayerAvatar from '../components/PlayerAvatar';
 import { Fireworks } from 'fireworks-js';
 import './styles/ScoreScreen.css';
 import type { Player } from '../types/Player';
+import RoundCounter from '../components/RoundCounter';
 
 interface ScoreScreenProps {
   session: any;
@@ -170,7 +171,17 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
       >
         {/* Fireworks will be rendered inside this div by the utility */}
       </div>
-      <h1>{t('Scoreboard')}</h1>
+      <div className="top-section">
+        <div className="top-grid">
+          <div className="grid-item"></div>
+          <div className="grid-item">
+            <h1>{t('Scoreboard')}</h1>
+          </div>
+          <div className="grid-item">
+            <RoundCounter currentRound={currentRound} totalRounds={totalRounds} />
+          </div>
+        </div>
+      </div>
 
       <div className="podium-container">
         {/* Second Place */}

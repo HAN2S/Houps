@@ -18,6 +18,11 @@ public class PlayerService {
         player.setWrongAnswerSubmitted(null);
     }
 
+    public void resetPlayerScore(Player player) {
+        logger.debug("Resetting player score to 0 for player: {}", player.getUsername());
+        player.setScore(0);
+    }
+
     public void resetPlayerAnswerState(Player player) {
         logger.debug("Resetting only answer state for player: {} - Keeping wrong answer: {}", 
             player.getUsername(), player.getWrongAnswerSubmitted());

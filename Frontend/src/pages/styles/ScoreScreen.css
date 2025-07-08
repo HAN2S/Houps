@@ -15,6 +15,36 @@
   font-size: 2.5em;
 }
 
+.top-section {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.top-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.grid-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-item:last-child {
+  justify-content: flex-end;
+}
+
+.round-counter {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #67AE6E;
+}
+
 .podium-container {
   display: flex;
   justify-content: center;

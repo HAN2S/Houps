@@ -550,7 +550,10 @@ public class GameService {
         session.setSelectedDifficulty(null);
         session.setCurrentQuestionId(null);
         session.setFinalOptions(new ArrayList<>());
-        session.getPlayers().forEach(playerService::resetPlayerState);
+        session.getPlayers().forEach(player -> {
+            playerService.resetPlayerState(player);
+            playerService.resetPlayerScore(player);
+        });
         saveSession(session);
         roomWebSocketController.broadcastRoomUpdate(session.getSessionId(), session);
     }

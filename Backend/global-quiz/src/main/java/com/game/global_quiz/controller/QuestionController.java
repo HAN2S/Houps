@@ -2,6 +2,7 @@ package com.game.global_quiz.controller;
 
 import com.game.global_quiz.model.Question;
 import com.game.global_quiz.service.QuestionService;
+import com.game.global_quiz.dto.QuestionDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -64,11 +65,19 @@ public class QuestionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
+    public ResponseEntity<QuestionDTO> getQuestionById(@PathVariable Long id) {
         Question question = questionService.findById(id);
         if (question == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(question);
+        QuestionDTO dto = new QuestionDTO();
+        dto.setId(question.getId());
+        dto.setQuestionText(question.getQuestionText());
+        dto.setCorrectAnswer(question.getCorrectAnswer());
+        dto.setCategory(question.getCategory());
+        dto.setDifficulty(question.getDifficulty());
+        dto.setImageUrl(question.getImageUrl());
+        dto.setFallbackOptions(question.getFallbackOptions());
+        return ResponseEntity.ok(dto);
     }
 } 
