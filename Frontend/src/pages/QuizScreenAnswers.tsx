@@ -61,6 +61,7 @@ const QuizScreenAnswers: React.FC<QuizScreenAnswersProps> = ({ session }) => {
           showPlayerAnswers={true}
           fallbackOptions={question ? question.fallbackOptions || [] : []}
           correctAnswer={question ? question.correctAnswer : ''}
+          trapAnswer={question ? question.trapAnswer : ''}
         />
         <div className="continue-section">
           <button className="submit-button" onClick={handleNext} disabled={loading}>

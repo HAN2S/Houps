@@ -73,16 +73,21 @@ public class QuestionService {
     }
 
     public List<String> prepareFinalOptions(Question question, Set<String> wrongAnswers, int numberOfPlayers) {
-        logger.info("[prepareFinalOptions] correctAnswer: {}, wrongAnswers: {}, fallbackOptions: {}", question.getCorrectAnswer(), wrongAnswers, question.getFallbackOptions());
+        logger.info("[prepareFinalOptions] correctAnswer: {}, wrongAnswers: {}, fallbackOptions: {}, trapAnswer: {}", question.getCorrectAnswer(), wrongAnswers, question.getFallbackOptions(), question.getTrapAnswer());
         List<String> finalOptions = new ArrayList<>();
         finalOptions.add(question.getCorrectAnswer());
         
         // Add unique wrong answers from players
         finalOptions.addAll(wrongAnswers);
 
+        // Always include trap answer if present and not already included
+        if (question.getTrapAnswer() != null && !question.getTrapAnswer().isEmpty() && !finalOptions.contains(question.getTrapAnswer())) {
+            finalOptions.add(question.getTrapAnswer());
+        }
+
         // If we need more options, add fallback options
-        if (finalOptions.size() < numberOfPlayers + 1) {
-            int neededOptions = (numberOfPlayers + 1) - finalOptions.size();
+        if (finalOptions.size() < numberOfPlayers + 2) {
+            int neededOptions = (numberOfPlayers + 2) - finalOptions.size();
             List<String> availableFallbacks = new ArrayList<>(question.getFallbackOptions());
             Collections.shuffle(availableFallbacks);
             

@@ -9,6 +9,7 @@ public class QuestionDTO {
     private String category;
     private Integer difficulty;
     private String imageUrl;
+    private String trapAnswer;
     private Set<String> fallbackOptions;
 
     public Long getId() { return id; }
@@ -28,6 +29,9 @@ public class QuestionDTO {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getTrapAnswer() { return trapAnswer; }
+    public void setTrapAnswer(String trapAnswer) { this.trapAnswer = trapAnswer; }
 
     public Set<String> getFallbackOptions() { return fallbackOptions; }
     public void setFallbackOptions(Set<String> fallbackOptions) { this.fallbackOptions = fallbackOptions; }

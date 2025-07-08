@@ -36,6 +36,9 @@ public class Question {
     @Size(max = 255, message = "Image URL must be at most 255 characters")
     private String imageUrl;
 
+    @Size(max = 100, message = "Trap answer must be at most 100 characters")
+    private String trapAnswer;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Size(min = 3, max = 10, message = "Must provide between 3 and 10 fallback options")
     private Set<String> fallbackOptions;
@@ -87,6 +90,13 @@ public class Question {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getTrapAnswer() {
+        return trapAnswer;
+    }
+    public void setTrapAnswer(String trapAnswer) {
+        this.trapAnswer = trapAnswer;
     }
 
     public Set<String> getFallbackOptions() {

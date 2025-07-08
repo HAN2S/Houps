@@ -11,6 +11,7 @@ interface AnswerChoicesProps {
   interactive?: boolean;
   fallbackOptions?: string[];
   correctAnswer?: string;
+  trapAnswer?: string;
 }
 
 const AnswerChoices: React.FC<AnswerChoicesProps> = ({
@@ -21,6 +22,7 @@ const AnswerChoices: React.FC<AnswerChoicesProps> = ({
   interactive = true,
   fallbackOptions = [],
   correctAnswer,
+  trapAnswer,
 }) => {
   const choices = Array.isArray(session.finalOptions) ? session.finalOptions : [];
   console.log('Fallback anwsers:', fallbackOptions);
@@ -44,6 +46,7 @@ const AnswerChoices: React.FC<AnswerChoicesProps> = ({
           interactive={interactive}
           isCorrect={correctAnswer === choice}
           isFallback={fallbackOptions.includes(choice)}
+          trapAnswer={trapAnswer}
         />
       ))}
     </div>

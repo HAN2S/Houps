@@ -361,7 +361,15 @@ public class GameService {
                 int points = currentQuestion.getDifficulty();
                 player.addScore(points);
                 logger.info("Player {} answered correctly and gained {} points. New score: {}", player.getUsername(), points, player.getScore());
-            } 
+            }
+            // Rule 1.5: Trap answer penalty (if not correct answer)
+            else if (player.isHasAnswered() && player.getCurrentAnswer() != null && currentQuestion.getTrapAnswer() != null
+                    && !currentQuestion.getTrapAnswer().isEmpty()
+                    && player.getCurrentAnswer().equals(currentQuestion.getTrapAnswer())
+                    && !questionService.isCorrectAnswer(currentQuestion, player.getCurrentAnswer())) {
+                player.addScore(-1);
+                logger.info("Player {} selected the trap answer and lost 1 point. New score: {}", player.getUsername(), player.getScore());
+            }
             // Rule 2: Bonus points for chosen wrong answers
             else if (player.isHasAnswered() && player.getCurrentAnswer() != null) {
                 Set<Player> submitters = originalWrongAnswerSubmitters.get(player.getCurrentAnswer());

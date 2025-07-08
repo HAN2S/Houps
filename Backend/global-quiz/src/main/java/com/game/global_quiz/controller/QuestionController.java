@@ -77,6 +77,7 @@ public class QuestionController {
         dto.setCategory(question.getCategory());
         dto.setDifficulty(question.getDifficulty());
         dto.setImageUrl(question.getImageUrl());
+        dto.setTrapAnswer(question.getTrapAnswer());
         dto.setFallbackOptions(question.getFallbackOptions());
         return ResponseEntity.ok(dto);
     }

@@ -11,6 +11,7 @@ interface AnswerChoiceProps {
   interactive?: boolean;
   isCorrect?: boolean;
   isFallback?: boolean;
+  trapAnswer?: string;
 }
 
 const AnswerChoice: React.FC<AnswerChoiceProps> = ({
@@ -21,7 +22,8 @@ const AnswerChoice: React.FC<AnswerChoiceProps> = ({
   players = [],
   interactive = true,
   isCorrect = false,
-  isFallback = false
+  isFallback = false,
+  trapAnswer = undefined
 }) => {
   const playersWithSelectedAnswer = players.filter(player => player.selectedAnswer === answer);
   const playersWithWrittenAnswer = players.filter(player => player.writtenAnswer === answer);
@@ -50,6 +52,11 @@ const AnswerChoice: React.FC<AnswerChoiceProps> = ({
       )}
       {isCorrect && (
         <div className="answer-players">Correct Answer</div>
+      )}
+      {trapAnswer && answer === trapAnswer && (
+        <div className="answer-players" style={{ color: '#d32f2f', fontWeight: 600 }}>
+          Trap Answer 💣
+        </div>
       )}
       {isFallback && playersWithWrittenAnswer.length === 0 && (
         <div className="answer-players">Our answer</div>

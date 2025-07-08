@@ -24,8 +24,9 @@ public class DataInitializer {
                 q1.setCategory("Geography");
                 q1.setDifficulty(1);
                 q1.setFallbackOptions(new HashSet<>(Arrays.asList(
-                    "London", "Berlin", "Madrid", "Rome", "Amsterdam"
+                    "Berlin", "Madrid", "Rome", "Amsterdam", "Brussels"
                 )));
+                q1.setTrapAnswer("London");
 
                 Question q2 = new Question();
                 q2.setQuestionText("Who painted the Mona Lisa?");
@@ -33,8 +34,9 @@ public class DataInitializer {
                 q2.setCategory("Art");
                 q2.setDifficulty(1);
                 q2.setFallbackOptions(new HashSet<>(Arrays.asList(
-                    "Vincent van Gogh", "Pablo Picasso", "Michelangelo", "Rembrandt", "Claude Monet"
+                    "Vincent van Gogh", "Michelangelo", "Rembrandt", "Claude Monet", "Edvard Munch"
                 )));
+                q2.setTrapAnswer("Pablo Picasso");
 
                 Question q3 = new Question();
                 q3.setQuestionText("What is the chemical symbol for gold?");
@@ -42,8 +44,9 @@ public class DataInitializer {
                 q3.setCategory("Science");
                 q3.setDifficulty(2);
                 q3.setFallbackOptions(new HashSet<>(Arrays.asList(
-                    "Ag", "Fe", "Cu", "Hg", "Pt"
+                    "Ag", "Cu", "Hg", "Pt", "Zn"
                 )));
+                q3.setTrapAnswer("Fe");
 
                 Question q4 = new Question();
                 q4.setQuestionText("Which planet is known as the Red Planet?");
@@ -51,8 +54,9 @@ public class DataInitializer {
                 q4.setCategory("Science");
                 q4.setDifficulty(1);
                 q4.setFallbackOptions(new HashSet<>(Arrays.asList(
-                    "Venus", "Jupiter", "Saturn", "Neptune", "Mercury"
+                    "Venus", "Saturn", "Neptune", "Mercury", "Uranus"
                 )));
+                q4.setTrapAnswer("Jupiter");
 
                 Question q5 = new Question();
                 q5.setQuestionText("Who wrote 'Romeo and Juliet'?");
@@ -60,11 +64,45 @@ public class DataInitializer {
                 q5.setCategory("Literature");
                 q5.setDifficulty(1);
                 q5.setFallbackOptions(new HashSet<>(Arrays.asList(
-                    "Charles Dickens", "Jane Austen", "Mark Twain", "Ernest Hemingway", "F. Scott Fitzgerald"
+                    "Charles Dickens", "Jane Austen", "Ernest Hemingway", "F. Scott Fitzgerald", "George Orwell"
                 )));
+                q5.setTrapAnswer("Mark Twain");
+
+                // New Question 1
+                Question q6 = new Question();
+                q6.setQuestionText("Who won the 2022 FIFA World Cup?");
+                q6.setCorrectAnswer("Argentina");
+                q6.setCategory("Sports");
+                q6.setDifficulty(1);
+                q6.setFallbackOptions(new HashSet<>(Arrays.asList(
+                    "Tunisia", "Brazil", "Germany", "Spain", "Italy"
+                )));
+                q6.setTrapAnswer("France");
+
+                // New Question 2
+                Question q7 = new Question();
+                q7.setQuestionText("How many teams from London are in the Premier League?");
+                q7.setCorrectAnswer("6");
+                q7.setCategory("Sports");
+                q7.setDifficulty(2);
+                q7.setFallbackOptions(new HashSet<>(Arrays.asList(
+                    "10", "5", "7", "8", "3"
+                )));
+                q7.setTrapAnswer("4");
+
+                // New Question 3
+                Question q8 = new Question();
+                q8.setQuestionText("In which country is Lapland located?");
+                q8.setCorrectAnswer("Sweden");
+                q8.setCategory("Geography");
+                q8.setDifficulty(2);
+                q8.setFallbackOptions(new HashSet<>(Arrays.asList(
+                    "Urugway", "Norway", "Russia", "Denmark", "Iceland"
+                )));
+                q8.setTrapAnswer("Finland");
 
                 // Save all questions
-                questionRepository.saveAll(Arrays.asList(q1, q2, q3, q4, q5));
+                questionRepository.saveAll(Arrays.asList(q1, q2, q3, q4, q5, q6, q7, q8));
             }
         };
     }
