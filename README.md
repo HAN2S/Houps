@@ -1,89 +1,127 @@
-# Global Quiz Game
+# Global Quiz Backend
 
-A multiplayer quiz game where players can create rooms, join games, and compete in real-time.
-
-## Project Structure
-
-```
-game/
-├── Frontend/          # React frontend application
-│   └── global-quiz/   # React project
-└── Backend/           # Spring Boot backend application
-    └── global-quiz/   # Spring Boot project
-```
+This is the backend service for the Global Quiz game, built with Spring Boot.  
+It provides RESTful APIs and WebSocket endpoints for real-time multiplayer quiz gameplay.
 
 ## Features
 
-- Real-time multiplayer gameplay
-- Room creation and management
-- Player ready system
-- Multiple categories support
-- Score tracking
-- Real-time updates using WebSocket
+- RESTful API for room, player, and game management
+- Real-time updates via WebSocket
+- Redis for session management
+- MySQL for persistent storage
+- Swagger/OpenAPI documentation
 
 ## Tech Stack
 
-### Frontend
-- React
-- TypeScript
-- Socket.IO Client
-- Material-UI
-
-### Backend
-- Spring Boot
-- WebSocket
-- Redis
-- MySQL
-- JPA/Hibernate
-
-## Getting Started
-
-### Prerequisites
-- Node.js (v16 or higher)
 - Java 21
+- Spring Boot 3.5.x
+- Spring WebSocket
+- Spring Data JPA & Redis
 - MySQL
 - Redis
+- Maven
 
-### Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd Frontend/global-quiz
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm start
-   ```
+## Prerequisites
 
-### Backend Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd Backend/global-quiz
-   ```
-2. Build the project:
-   ```bash
-   ./mvnw clean install
-   ```
-3. Run the application:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
+- Java 21+
+- Maven
+- MySQL 8+
+- Redis 6+
+
+## Configuration
+
+Edit `src/main/resources/application.properties` with your database and Redis credentials:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/global_quiz
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+
+# Redis Configuration
+spring.redis.host=your_redis_host
+spring.redis.port=your_redis_port
+spring.redis.password=your_redis_password
+```
+
+## Running the Backend
+
+```bash
+cd Backend/global-quiz
+mvn clean install
+mvn spring-boot:run
+```
+
+The server will start on [http://localhost:8081](http://localhost:8081).
 
 ## API Documentation
 
-The API documentation is available at `http://localhost:8080/swagger-ui.html` when the backend is running.
+Swagger UI: [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
+
+## Running Tests
+
+```bash
+./mvnw test
+```
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create a feature branch
+3. Commit your changes
+4. Push to your branch
 5. Open a Pull Request
 
-## License
+---
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+## **Frontend: `Frontend/README.md`**
+
+```markdown
+# Global Quiz Frontend
+
+This is the frontend for the Global Quiz game, built with React, TypeScript, and Vite.
+
+## Features
+
+- Real-time multiplayer quiz interface
+- Room creation, lobby, and game screens
+- WebSocket integration for live updates
+- Responsive and modern UI
+
+## Tech Stack
+
+- React 18 + TypeScript
+- Vite
+- react-i18next (internationalization)
+- CSS Modules / custom styles
+- WebSocket
+
+## Prerequisites
+
+- Node.js 18+
+- npm (comes with Node.js)
+
+## Running the Frontend
+
+```bash
+cd Frontend
+npm install
+npm run dev
+```
+
+The app will be available at [http://localhost:5173](http://localhost:5173) (default Vite port).
+
+## Project Structure
+
+- `src/pages/` — Main screens (Lobby, Quiz, Score, etc.)
+- `src/components/` — Reusable UI components
+- `src/hooks/` — Custom React hooks
+- `src/types/` — TypeScript types/interfaces
+- `src/utils/` — Utility functions
+
+## Environment Variables
+
+If you need to change the backend API URL, create a `.env` file:
+
+```
+VITE_API_URL=http://localhost:8081
+``` 
