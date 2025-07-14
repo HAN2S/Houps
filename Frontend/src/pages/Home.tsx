@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './styles/Home.css';
 import './styles/Buttons.css';
+import LanguageSelector from '../components/LanguageSelector';
 
 interface RoomRequest {
   creatorPseudo: string;
@@ -67,7 +68,8 @@ const Home: React.FC = () => {
         roomSettings: {
           maxPlayers: 4, // Default value
           totalRounds: 10, // Default value
-          timePerQuestion: 30 // Default value
+          timePerQuestion: 30, // Default value
+          language: i18n.language // Add selected language
         }
       };
 
@@ -122,22 +124,7 @@ const Home: React.FC = () => {
       <h1 className="home-title">GlobalQuizz</h1>
       <div className="home-content">
         {/* Language Flags in Top-Right */}
-        <div className="language-flags">
-          <button
-            onClick={() => changeLanguage('fr')}
-            className={`language-flag ${i18n.language === 'fr' ? 'active' : ''}`}
-            title="Français"
-          >
-            🇫🇷
-          </button>
-          <button
-            onClick={() => changeLanguage('en')}
-            className={`language-flag ${i18n.language === 'en' ? 'active' : ''}`}
-            title="English"
-          >
-            🇬🇧
-          </button>
-        </div>
+        <LanguageSelector currentLanguage={i18n.language} onChange={changeLanguage} />
 
         <div className="play-card">
           <h2 className="play-title">PLAY</h2>

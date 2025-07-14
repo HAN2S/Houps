@@ -1,3 +1,13 @@
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.quiz-container {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 .category-selection-container {
   display: flex;
   flex-direction: column;
@@ -208,5 +218,19 @@
   
   .category-name {
     font-size: 1rem;
+  }
+} 
+
+@media (max-width: 600px) {
+  .categories-list {
+    flex-direction: column;
+    gap: 10px;
+    max-width: 100%;
+    align-items: stretch;
+  }
+  .category-button {
+    width: 100%;
+    font-size: 1em;
+    padding: 10px 0;
   }
 } 

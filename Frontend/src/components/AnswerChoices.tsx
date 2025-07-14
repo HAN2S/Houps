@@ -47,6 +47,7 @@ const AnswerChoices: React.FC<AnswerChoicesProps> = ({
           isCorrect={correctAnswer === choice}
           isFallback={fallbackOptions.includes(choice)}
           trapAnswer={trapAnswer}
+          language={session.language}
         />
       ))}
     </div>

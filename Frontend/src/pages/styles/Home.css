@@ -190,3 +190,28 @@
   border-color: #328E6E;
   color: #328E6E;
 }
+
+@media (max-width: 600px) {
+  .home-content {
+    padding: 1rem;
+    max-width: 100vw;
+  }
+  .home-title {
+    font-size: 1.5rem;
+  }
+  .play-card {
+    padding: 1rem;
+    max-width: 100vw;
+  }
+  .carousel-image {
+    width: 4rem;
+    height: 4rem;
+  }
+  .input-field {
+    max-width: 100vw;
+    font-size: 1em;
+  }
+  .button-group {
+    gap: 0.5rem;
+  }
+}

@@ -3,6 +3,7 @@ package com.game.global_quiz.service;
 import com.game.global_quiz.model.GameSession;
 import com.game.global_quiz.model.Player;
 import com.game.global_quiz.model.Question;
+import com.game.global_quiz.model.FallbackOption;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import com.game.global_quiz.model.Category;
 
 @ExtendWith(MockitoExtension.class)
 class GameServiceTest {
@@ -53,11 +55,18 @@ class GameServiceTest {
         // Setup mock question
         mockQuestion = new Question();
         mockQuestion.setId(1L);
-        mockQuestion.setQuestionText("What is the capital of France?");
-        mockQuestion.setCorrectAnswer("Paris");
-        mockQuestion.setCategory("Geography");
+        mockQuestion.setQuestionTextEn("What is the capital of France?");
+        mockQuestion.setCorrectAnswerEn("Paris");
+        Category mockCategory = new Category();
+        mockCategory.setNameEn("Geography");
+        mockQuestion.setCategory(mockCategory);
         mockQuestion.setDifficulty(1);
-        mockQuestion.setFallbackOptions(new HashSet<>(Arrays.asList("London", "Berlin", "Madrid")));
+        List<FallbackOption> fallbackOptions = new ArrayList<>();
+        FallbackOption fo1 = new FallbackOption(); fo1.setFallbackEn("London"); fo1.setFallbackFr("Londres"); fo1.setFallbackAr("لندن");
+        FallbackOption fo2 = new FallbackOption(); fo2.setFallbackEn("Berlin"); fo2.setFallbackFr("Berlin"); fo2.setFallbackAr("برلين");
+        FallbackOption fo3 = new FallbackOption(); fo3.setFallbackEn("Madrid"); fo3.setFallbackFr("Madrid"); fo3.setFallbackAr("مدريد");
+        fallbackOptions.add(fo1); fallbackOptions.add(fo2); fallbackOptions.add(fo3);
+        mockQuestion.setFallbackOptions(fallbackOptions);
 
         // Setup test session
         testSession = new GameSession();
@@ -67,7 +76,7 @@ class GameServiceTest {
         testSession.setTotalRounds(10);
         testSession.setTimePerQuestion(30);
         testSession.setMaxPlayers(4);
-        testSession.setChosenCategories(Arrays.asList("Geography", "Science"));
+        testSession.setChosenCategoryIds(Arrays.asList(1L, 2L));
 
         // Add minimum required players and mark them as ready
         List<Player> players = new ArrayList<>();
@@ -90,7 +99,7 @@ class GameServiceTest {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(REDIS_KEY)).thenReturn(testSession);
         doNothing().when(playerService).resetPlayerState(any(Player.class));
-        when(questionService.getRandomQuestion(any(String.class), anyInt())).thenReturn(mockQuestion);
+        when(questionService.getRandomQuestion(anyLong(), anyInt(), any(String.class))).thenReturn(mockQuestion);
 
         // Act
         gameService.startGame(TEST_SESSION_ID);
@@ -100,7 +109,7 @@ class GameServiceTest {
         assertNotNull(testSession.getStartTime());
         assertEquals(mockQuestion.getId(), testSession.getCurrentQuestionId());
         verify(valueOperations).set(eq(REDIS_KEY), eq(testSession), eq(Duration.ofHours(2)));
-        verify(questionService, times(1)).getRandomQuestion(any(String.class), anyInt());
+        verify(questionService, times(1)).getRandomQuestion(anyLong(), anyInt(), any(String.class));
     }
 
     @Test
@@ -177,13 +186,13 @@ class GameServiceTest {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(REDIS_KEY)).thenReturn(testSession);
         doNothing().when(playerService).resetPlayerState(any(Player.class));
-        when(questionService.getRandomQuestion(any(String.class), anyInt())).thenReturn(mockQuestion);
+        when(questionService.getRandomQuestion(anyLong(), anyInt(), any(String.class))).thenReturn(mockQuestion);
 
         // Act
         gameService.startGame(TEST_SESSION_ID);
 
         // Assert
-        verify(questionService, times(1)).getRandomQuestion(any(String.class), anyInt());
+        verify(questionService, times(1)).getRandomQuestion(anyLong(), anyInt(), any(String.class));
         assertEquals(mockQuestion.getId(), testSession.getCurrentQuestionId());
     }
 } 

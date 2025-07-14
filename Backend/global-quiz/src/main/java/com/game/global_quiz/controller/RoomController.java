@@ -6,6 +6,7 @@ import com.game.global_quiz.dto.CreateRoomRequestDTO;
 import com.game.global_quiz.dto.RoomJoinResponseDTO;
 import com.game.global_quiz.model.GameSession;
 import com.game.global_quiz.service.GameService;
+import com.game.global_quiz.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,10 +28,12 @@ public class RoomController {
     private static final Logger logger = LoggerFactory.getLogger(RoomController.class);
     private final GameService gameService;
     private final RoomWebSocketController roomWebSocketController;
+    private final CategoryService categoryService;
 
-    public RoomController(GameService gameService, RoomWebSocketController roomWebSocketController) {
+    public RoomController(GameService gameService, RoomWebSocketController roomWebSocketController, CategoryService categoryService) {
         this.gameService = gameService;
         this.roomWebSocketController = roomWebSocketController;
+        this.categoryService = categoryService;
     }
 
     @Operation(
@@ -80,7 +83,7 @@ public class RoomController {
             int totalRounds = roomSettings != null ? roomSettings.getTotalRounds() : 10;
             int timePerQuestion = roomSettings != null ? roomSettings.getTimePerQuestion() : 30;
             // Get chosen categories, default to empty list if not provided
-            java.util.List<String> chosenCategories = roomSettings != null && roomSettings.getCategories() != null 
+            java.util.List<Long> chosenCategoryIds = roomSettings != null && roomSettings.getCategories() != null 
                                                      ? roomSettings.getCategories() : new java.util.ArrayList<>();
 
             // Generate unique ID for player
@@ -95,11 +98,12 @@ public class RoomController {
                 maxPlayers,
                 totalRounds,
                 timePerQuestion,
-                chosenCategories // Pass chosen categories
+                chosenCategoryIds, // Pass chosen categories
+                request.getLanguage() // Pass language
             );
             
             logger.info("Successfully created game session with ID: {}", session.getSessionId());
-            RoomJoinResponseDTO response = new RoomJoinResponseDTO(session, playerId);
+            RoomJoinResponseDTO response = new RoomJoinResponseDTO(session, playerId, categoryService);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             logger.error("Invalid argument while creating room: {}", e.getMessage(), e);
@@ -209,7 +213,7 @@ public class RoomController {
             
             GameSession updatedSession = gameService.getSession(sessionId);
             logger.info("Successfully joined player {} to session ID: {}", playerId, sessionId);
-            RoomJoinResponseDTO response = new RoomJoinResponseDTO(updatedSession, playerId);
+            RoomJoinResponseDTO response = new RoomJoinResponseDTO(updatedSession, playerId, categoryService);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             logger.error("Invalid argument while joining room {}: {}", sessionId, e.getMessage(), e);
@@ -258,7 +262,10 @@ public class RoomController {
             session.setMaxPlayers(settings.getMaxPlayers());
             session.setTotalRounds(settings.getTotalRounds());
             session.setTimePerQuestion(settings.getTimePerQuestion());
-            session.setChosenCategories(settings.getCategories());
+            session.setChosenCategoryIds(settings.getCategories());
+            if (settings.getLanguage() != null) {
+                session.setLanguage(settings.getLanguage());
+            }
             logger.info("Updated categories for session {}: {}", sessionId, settings.getCategories());
 
             gameService.saveSession(session);

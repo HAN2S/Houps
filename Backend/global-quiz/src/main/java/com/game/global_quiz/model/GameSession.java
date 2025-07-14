@@ -19,7 +19,7 @@ public class GameSession implements Serializable {
     private static final long serialVersionUID = 1L;
     private String sessionId;
     private List<Player> players = new ArrayList<>();
-    private List<String> chosenCategories = new ArrayList<>();
+    private List<Long> chosenCategoryIds = new ArrayList<>();
     private Long currentQuestionId;
     private GameStatus status;
     private LocalDateTime startTime;
@@ -30,8 +30,9 @@ public class GameSession implements Serializable {
     private int timePerQuestion;
     private QuestionPhase currentPhase;
     private List<String> finalOptions = new ArrayList<>();
-    private String selectedCategory;
+    private Long selectedCategory;
     private Integer selectedDifficulty;
+    private String language = "en";
 
     public enum GameStatus {
         WAITING_FOR_PLAYERS,
@@ -49,10 +50,10 @@ public class GameSession implements Serializable {
         SCORE_DISPLAY
     }
 
-    public GameSession(int maxPlayers, int totalRounds, int timePerQuestion, List<String> chosenCategories) {
+    public GameSession(int maxPlayers, int totalRounds, int timePerQuestion, List<Long> chosenCategoryIds) {
         this.sessionId = UUID.randomUUID().toString();
         this.players = new ArrayList<>();
-        this.chosenCategories = chosenCategories != null ? new ArrayList<>(chosenCategories) : new ArrayList<>();
+        this.chosenCategoryIds = chosenCategoryIds != null ? new ArrayList<>(chosenCategoryIds) : new ArrayList<>();
         this.currentQuestionId = null;
         this.status = GameStatus.WAITING_FOR_PLAYERS;
         this.currentRound = 1;
@@ -63,5 +64,21 @@ public class GameSession implements Serializable {
         this.currentPhase = QuestionPhase.LOBBY;
         this.selectedCategory = null;
         this.selectedDifficulty = null;
+    }
+
+    public String getLanguage() { return language; }
+    public void setLanguage(String language) { this.language = language; }
+
+    public List<Long> getChosenCategoryIds() {
+        return chosenCategoryIds;
+    }
+    public void setChosenCategoryIds(List<Long> chosenCategoryIds) {
+        this.chosenCategoryIds = chosenCategoryIds;
+    }
+    public Long getSelectedCategory() {
+        return selectedCategory;
+    }
+    public void setSelectedCategory(Long selectedCategory) {
+        this.selectedCategory = selectedCategory;
     }
 } 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import PlayersBar from './PlayersBar';
 import TimerContainer from '../components/TimerContainer';
+import RoundCounter from '../components/RoundCounter';
 import './styles/CreateRoom.css';
 import './styles/Buttons.css';
 import './styles/DifficultySelection.css';
@@ -20,23 +21,43 @@ const DifficultySelectionScreen: React.FC<DifficultySelectionScreenProps> = ({ s
   const currentPlayerId = localStorage.getItem('playerId');
   const isMyTurn = chooser && chooser.id === currentPlayerId;
   const category = session.selectedCategory;
+  const [allCategories, setAllCategories] = useState<{ id: number; name: string }[]>([]);
 
   useEffect(() => {
     setTimeLeft(session.timer ?? session.timePerQuestion);
   }, [session.timer, session.timePerQuestion, session.currentRound]);
 
   useEffect(() => {
+    if (timeLeft <= 0 && isMyTurn) {
+      handleSelectDifficulty(2); // Medium
+    }
     if (timeLeft <= 0) return;
     const interval = setInterval(() => {
       setTimeLeft((prev: number) => prev - 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [timeLeft]);
+  }, [timeLeft, isMyTurn]);
+
+  useEffect(() => {
+    // Fetch all categories from your API in the current session language
+    fetch('http://localhost:8081/api/questions/categories', {
+      headers: { 'Accept-Language': session.language }
+    })
+      .then(res => res.json())
+      .then(data => setAllCategories(data))
+      .catch(err => console.error('Failed to fetch categories', err));
+  }, [session.language]);
+
+  // Helper to get the name for a given ID
+  const getCategoryName = (id: number | string) => {
+    const cat = allCategories.find(c => String(c.id) === String(id));
+    return cat ? cat.name : id;
+  };
 
   const difficulties = [
-    { label: 'Easy', value: 1 },
-    { label: 'Medium', value: 2 },
-    { label: 'Hard', value: 3 }
+    { label: 'difficulty.easy', value: 1 },
+    { label: 'difficulty.medium', value: 2 },
+    { label: 'difficulty.hard', value: 3 }
   ];
 
   const handleSelectDifficulty = async (difficulty: number) => {
@@ -62,7 +83,9 @@ const DifficultySelectionScreen: React.FC<DifficultySelectionScreenProps> = ({ s
           <div className="grid-item">
             <TimerContainer timeLeft={timeLeft} totalTime={session.timePerQuestion} />
           </div>
-          <div className="grid-item"></div>
+          <div className="grid-item">
+            <RoundCounter currentRound={session.currentRound} totalRounds={session.totalRounds} />
+          </div>
         </div>
       </div>
 
@@ -72,7 +95,7 @@ const DifficultySelectionScreen: React.FC<DifficultySelectionScreenProps> = ({ s
           {chooser && (
             <>
               <img src={chooser.avatarUrl} alt={chooser.username} className="chooser-avatar" />
-              <p>{chooser.username} is choosing a difficulty for {category}...</p>
+              <p>{t('isChoosingDifficultyFor', { username: chooser.username, category: getCategoryName(category) })}</p>
             </>
           )}
         </div>
@@ -84,7 +107,7 @@ const DifficultySelectionScreen: React.FC<DifficultySelectionScreenProps> = ({ s
               onClick={() => handleSelectDifficulty(diff.value)}
               disabled={!isMyTurn}
             >
-              {diff.label}
+              {t(diff.label)}
             </button>
           ))}
         </div>

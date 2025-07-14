@@ -4,7 +4,7 @@ import './styles/PlayerAvatar.css';
 interface PlayerAvatarProps {
   pseudo: string;
   avatar: string;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'xsmall' | 'small' | 'medium' | 'large';
   showName?: boolean;
   score?: number;
   showScore?: boolean;

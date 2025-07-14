@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 interface Question {
   questionId: number;
-  themeId: number;
+  themeId?: number;
   questionType: 'Text' | 'Image' | 'Audio';
   questionText: string;
   correctAnswer: string;

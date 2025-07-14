@@ -37,7 +37,13 @@ const useWindowSize = () => {
 };
 
 const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  // Set i18n language to session.language if different
+  React.useEffect(() => {
+    if (session.language && i18n.language !== session.language) {
+      i18n.changeLanguage(session.language);
+    }
+  }, [session.language, i18n]);
   const { width } = useWindowSize();
   const players: Player[] = Array.isArray(session.players) ? session.players.map((p: any) => ({
     username: p.username,
@@ -53,7 +59,13 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
   const fireworksContainerRef = useRef<HTMLDivElement>(null);
   const fireworksInstance = useRef<Fireworks | null>(null);
   const [loading, setLoading] = useState(false);
+  // Helper to get playerId from localStorage
   const playerId = localStorage.getItem('playerId');
+  const sessionId = session.sessionId;
+
+  // Détection mobile (phone) fiable
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
+
   const hostPlayer = Array.isArray(session.players)
     ? session.players.find((p: any) => p.host === true)
     : null;
@@ -184,101 +196,105 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
       </div>
 
       <div className="podium-container">
-        {/* Second Place */}
-        {secondPlacePlayers.length > 0 && (
-          <div className={`podium-spot second-place ${secondPlacePlayers.length > 1 ? 'multiple-players' : ''}`}>
-            {secondPlacePlayers.length === 1 ? (
+        {/* Second Place (toujours visible) */}
+        <div className={`podium-spot second-place ${secondPlacePlayers.length > 1 ? 'multiple-players' : ''}`} style={{ opacity: secondPlacePlayers.length === 0 ? 0.3 : 1 }}>
+          {secondPlacePlayers.length > 0 ? (
+            secondPlacePlayers.length === 1 ? (
               <div className="podium-player single-player">
                 <PlayerAvatar
                   pseudo={secondPlacePlayers[0].username}
                   avatar={secondPlacePlayers[0].avatarUrl}
-                  size={getAvatarSize()}
+                  size={isMobile ? 'small' : getAvatarSize()}
                   showName={true}
                   showScore={false}
                 />
+                <span className="podium-score">{secondPlacePlayers[0].score}</span>
               </div>
             ) : (
-              <div className="podium-players-container">
-                {secondPlacePlayers.map((player: Player, index: number) => (
-                  <div key={index} className="podium-player">
+              <>
+                <div className="podium-players-container">
+                  {secondPlacePlayers.map((player, idx) => (
                     <PlayerAvatar
+                      key={idx}
                       pseudo={player.username}
                       avatar={player.avatarUrl}
-                      size={getMultiplePlayersAvatarSize()}
+                      size={isMobile ? 'small' : getMultiplePlayersAvatarSize()}
                       showName={true}
                       showScore={false}
                     />
-                  </div>
-                ))}
-              </div>
-            )}
-            <span className="podium-score">{secondPlacePlayers[0].score}</span>
-          </div>
-        )}
-
-        {/* First Place */}
-        {firstPlacePlayers.length > 0 && (
-          <div className={`podium-spot first-place ${firstPlacePlayers.length > 1 ? 'multiple-players' : ''}`}>
-            {firstPlacePlayers.length === 1 ? (
+                  ))}
+                </div>
+                <span className="podium-score">{secondPlacePlayers[0].score}</span>
+              </>
+            )
+          ) : <span className="podium-score">-</span>}
+        </div>
+        {/* First Place (toujours visible) */}
+        <div className={`podium-spot first-place`}>
+          {firstPlacePlayers.length > 0 ? (
+            firstPlacePlayers.length === 1 ? (
               <div className="podium-player single-player">
                 <PlayerAvatar
                   pseudo={firstPlacePlayers[0].username}
                   avatar={firstPlacePlayers[0].avatarUrl}
-                  size={getAvatarSize()}
+                  size={isMobile ? 'small' : getAvatarSize()}
                   showName={true}
-                  showScore={false}
+                  showScore={true}
                 />
+                <span className="podium-score">{firstPlacePlayers[0].score}</span>
               </div>
             ) : (
-              <div className="podium-players-container">
-                {firstPlacePlayers.map((player: Player, index: number) => (
-                  <div key={index} className="podium-player">
+              <>
+                <div className="podium-players-container">
+                  {firstPlacePlayers.map((player, idx) => (
                     <PlayerAvatar
+                      key={idx}
                       pseudo={player.username}
                       avatar={player.avatarUrl}
-                      size={getMultiplePlayersAvatarSize()}
+                      size={isMobile ? 'small' : getMultiplePlayersAvatarSize()}
                       showName={true}
                       showScore={false}
                     />
-                  </div>
-                ))}
-              </div>
-            )}
-            <span className="podium-score">{firstPlacePlayers[0].score}</span>
-          </div>
-        )}
-
-        {/* Third Place */}
-        {thirdPlacePlayers.length > 0 && (
-          <div className={`podium-spot third-place ${thirdPlacePlayers.length > 1 ? 'multiple-players' : ''}`}>
-            {thirdPlacePlayers.length === 1 ? (
+                  ))}
+                </div>
+                <span className="podium-score">{firstPlacePlayers[0].score}</span>
+              </>
+            )
+          ) : <span className="podium-score">-</span>}
+        </div>
+        {/* Third Place (toujours visible) */}
+        <div className={`podium-spot third-place ${thirdPlacePlayers.length > 1 ? 'multiple-players' : ''}`} style={{ opacity: thirdPlacePlayers.length === 0 ? 0.3 : 1 }}>
+          {thirdPlacePlayers.length > 0 ? (
+            thirdPlacePlayers.length === 1 ? (
               <div className="podium-player single-player">
                 <PlayerAvatar
                   pseudo={thirdPlacePlayers[0].username}
                   avatar={thirdPlacePlayers[0].avatarUrl}
-                  size={getAvatarSize()}
+                  size={isMobile ? 'small' : getAvatarSize()}
                   showName={true}
                   showScore={false}
                 />
+                <span className="podium-score">{thirdPlacePlayers[0].score}</span>
               </div>
             ) : (
-              <div className="podium-players-container">
-                {thirdPlacePlayers.map((player: Player, index: number) => (
-                  <div key={index} className="podium-player">
+              <>
+                <div className="podium-players-container">
+                  {thirdPlacePlayers.map((player, idx) => (
                     <PlayerAvatar
+                      key={idx}
                       pseudo={player.username}
                       avatar={player.avatarUrl}
-                      size={getMultiplePlayersAvatarSize()}
+                      size={isMobile ? 'small' : getMultiplePlayersAvatarSize()}
                       showName={true}
                       showScore={false}
                     />
-                  </div>
-                ))}
-              </div>
-            )}
-            <span className="podium-score">{thirdPlacePlayers[0].score}</span>
-          </div>
-        )}
+                  ))}
+                </div>
+                <span className="podium-score">{thirdPlacePlayers[0].score}</span>
+              </>
+            )
+          ) : <span className="podium-score">-</span>}
+        </div>
       </div>
 
       {/* Other Players */}
@@ -316,7 +332,7 @@ const ScoreScreen: React.FC<ScoreScreenProps> = ({ session }) => {
             }}
             disabled={loading}
           >
-            {loading ? 'Loading...' : isLastRound ? 'Back to Lobby' : t('Next Round')}
+            {loading ? t('loading') : isLastRound ? t('Back to Lobby') : t('Next Round')}
           </button>
         )}
       </div>

@@ -9,12 +9,14 @@ import './styles/QuizScreen.css';
 
 interface Question {
   questionId: number;
-  themeId: number;
+  themeId?: number; // Make optional to allow null assignment
   questionType: 'Text' | 'Image' | 'Audio';
   questionText: string;
   correctAnswer: string;
   mediaUrl?: string;
   difficulty: number;
+  trapAnswer?: string;
+  fallbackOptions?: string[];
 }
 
 interface Player {
@@ -36,6 +38,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState<null | boolean>(null);
   const [showCorrectWarning, setShowCorrectWarning] = useState(false);
+  const [allCategories, setAllCategories] = useState<{ id: number; name: string }[]>([]);
 
   const players = session.players || [];
   const questionId = session.currentQuestionId;
@@ -70,12 +73,36 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
       setQuestion(null);
       return;
     }
-    console.log('players: ', players);
+    // Helper to capitalize language code
+    function capitalize(str: string) {
+      if (!str) return '';
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    const lang = session.language || 'en';
     fetch(`http://localhost:8081/api/questions/${questionId}`)
       .then(res => res.json())
-      .then(data => setQuestion(data))
+      .then(data => {
+        // Map backend response to frontend Question interface
+        const questionText = data[`questionText${capitalize(lang)}`] || data.questionTextEn;
+        const correctAnswer = data[`correctAnswer${capitalize(lang)}`] || data.correctAnswerEn;
+        const trapAnswer = data[`trapAnswer${capitalize(lang)}`] || data.trapAnswerEn;
+        const fallbackOptions = (data.fallbackOptions || []).map((opt: any) =>
+          opt[`fallback${capitalize(lang)}`] || opt.fallbackEn
+        );
+        setQuestion({
+          questionId: data.id,
+          themeId: undefined, // or map from data.category if you have the mapping
+          questionType: data.imageUrl ? 'Image' : 'Text',
+          questionText,
+          correctAnswer,
+          mediaUrl: data.imageUrl,
+          difficulty: data.difficulty,
+          trapAnswer,
+          fallbackOptions,
+        });
+      })
       .catch(() => setQuestion(null));
-  }, [questionId]);
+  }, [questionId, session.language]);
 
   useEffect(() => {
     setTimeLeft(timer);
@@ -103,6 +130,20 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
     }, 1000);
     return () => clearInterval(interval);
   }, [timeLeft, hasSubmitted]);
+
+  useEffect(() => {
+    fetch('http://localhost:8081/api/questions/categories', {
+      headers: { 'Accept-Language': session.language }
+    })
+      .then(res => res.json())
+      .then(data => setAllCategories(data))
+      .catch(err => console.error('Failed to fetch categories', err));
+  }, [session.language]);
+
+  const getCategoryName = (id: number | string) => {
+    const cat = allCategories.find(c => String(c.id) === String(id));
+    return cat ? cat.name : String(id);
+  };
 
   // Effect to update isSmallScreen on window resize
   useEffect(() => {
@@ -154,7 +195,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
         {question && (
           <QuestionDisplay
             question={question}
-            theme={currentCategory}
+            theme={getCategoryName(currentCategory)}
           />
         )}
 

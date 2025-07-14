@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Size;
-import java.util.Set;
+import java.util.List;
+import com.game.global_quiz.model.FallbackOption;
 
 @Entity
 @Table(name = "questions")
@@ -17,16 +18,29 @@ public class Question {
 
     @NotBlank(message = "Question text is required")
     @Size(min = 10, max = 500, message = "Question text must be between 10 and 500 characters")
-    @Column(unique = true)
-    private String questionText;
+    @Column(name = "question_text_fr", unique = true)
+    private String questionTextFr;
+
+    @Column(name = "question_text_en")
+    private String questionTextEn;
+
+    @Column(name = "question_text_ar")
+    private String questionTextAr;
 
     @NotBlank(message = "Correct answer is required")
     @Size(min = 1, max = 100, message = "Correct answer must be between 1 and 100 characters")
-    private String correctAnswer;
+    @Column(name = "correct_answer_fr")
+    private String correctAnswerFr;
 
-    @NotBlank(message = "Category is required")
-    @Size(min = 2, max = 50, message = "Category must be between 2 and 50 characters")
-    private String category;
+    @Column(name = "correct_answer_en")
+    private String correctAnswerEn;
+
+    @Column(name = "correct_answer_ar")
+    private String correctAnswerAr;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @NotNull(message = "Difficulty is required")
     @Min(value = 1, message = "Difficulty must be at least 1")
@@ -37,11 +51,16 @@ public class Question {
     private String imageUrl;
 
     @Size(max = 100, message = "Trap answer must be at most 100 characters")
-    private String trapAnswer;
+    @Column(name = "trap_answer_fr")
+    private String trapAnswerFr;
+    @Column(name = "trap_answer_en")
+    private String trapAnswerEn;
+    @Column(name = "trap_answer_ar")
+    private String trapAnswerAr;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Size(min = 3, max = 10, message = "Must provide between 3 and 10 fallback options")
-    private Set<String> fallbackOptions;
+    @CollectionTable(name = "question_fallback_options", joinColumns = @JoinColumn(name = "question_id"))
+    private List<FallbackOption> fallbackOptions;
 
     // Getters and Setters
     public Long getId() {
@@ -52,27 +71,34 @@ public class Question {
         this.id = id;
     }
 
-    public String getQuestionText() {
-        return questionText;
+    public String getQuestionTextFr() {
+        return questionTextFr;
+    }
+    public void setQuestionTextFr(String questionTextFr) {
+        this.questionTextFr = questionTextFr;
     }
 
-    public void setQuestionText(String questionText) {
-        this.questionText = questionText;
+    public String getQuestionTextEn() { return questionTextEn; }
+    public void setQuestionTextEn(String questionTextEn) { this.questionTextEn = questionTextEn; }
+    public String getQuestionTextAr() { return questionTextAr; }
+    public void setQuestionTextAr(String questionTextAr) { this.questionTextAr = questionTextAr; }
+    public String getCorrectAnswerFr() {
+        return correctAnswerFr;
+    }
+    public void setCorrectAnswerFr(String correctAnswerFr) {
+        this.correctAnswerFr = correctAnswerFr;
     }
 
-    public String getCorrectAnswer() {
-        return correctAnswer;
-    }
+    public String getCorrectAnswerEn() { return correctAnswerEn; }
+    public void setCorrectAnswerEn(String correctAnswerEn) { this.correctAnswerEn = correctAnswerEn; }
+    public String getCorrectAnswerAr() { return correctAnswerAr; }
+    public void setCorrectAnswerAr(String correctAnswerAr) { this.correctAnswerAr = correctAnswerAr; }
 
-    public void setCorrectAnswer(String correctAnswer) {
-        this.correctAnswer = correctAnswer;
-    }
-
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
@@ -92,18 +118,13 @@ public class Question {
         this.imageUrl = imageUrl;
     }
 
-    public String getTrapAnswer() {
-        return trapAnswer;
-    }
-    public void setTrapAnswer(String trapAnswer) {
-        this.trapAnswer = trapAnswer;
-    }
+    public String getTrapAnswerFr() { return trapAnswerFr; }
+    public void setTrapAnswerFr(String trapAnswerFr) { this.trapAnswerFr = trapAnswerFr; }
+    public String getTrapAnswerEn() { return trapAnswerEn; }
+    public void setTrapAnswerEn(String trapAnswerEn) { this.trapAnswerEn = trapAnswerEn; }
+    public String getTrapAnswerAr() { return trapAnswerAr; }
+    public void setTrapAnswerAr(String trapAnswerAr) { this.trapAnswerAr = trapAnswerAr; }
 
-    public Set<String> getFallbackOptions() {
-        return fallbackOptions;
-    }
-
-    public void setFallbackOptions(Set<String> fallbackOptions) {
-        this.fallbackOptions = fallbackOptions;
-    }
+    public List<FallbackOption> getFallbackOptions() { return fallbackOptions; }
+    public void setFallbackOptions(List<FallbackOption> fallbackOptions) { this.fallbackOptions = fallbackOptions; }
 } 

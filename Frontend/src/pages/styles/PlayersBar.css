@@ -130,3 +130,24 @@
   }
 }
 
+@media (max-width: 600px) {
+  .players-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.25rem;
+    overflow-x: hidden;
+  }
+  .player-card {
+    flex-basis: calc(33% - 0.5rem);
+    min-width: 60px;
+    margin: 0.25rem;
+  }
+  .player-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  .player-name {
+    font-size: 0.7rem;
+  }
+}
+

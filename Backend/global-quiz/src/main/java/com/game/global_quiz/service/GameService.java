@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import com.game.global_quiz.controller.RoomWebSocketController;
+import com.game.global_quiz.model.Category;
+import com.game.global_quiz.service.CategoryService;
 
 @Service
 public class GameService {
@@ -21,15 +23,20 @@ public class GameService {
     private final QuestionService questionService;
     private final PlayerService playerService;
     private final RoomWebSocketController roomWebSocketController;
+    private final CategoryService categoryService;
+    // Ajout d'un champ de langue par défaut
+    private static final String DEFAULT_LANG = "en";
 
     public GameService(RedisTemplate<String, GameSession> redisTemplate, 
                       QuestionService questionService, 
                       PlayerService playerService,
-                      RoomWebSocketController roomWebSocketController) {
+                      RoomWebSocketController roomWebSocketController,
+                      CategoryService categoryService) {
         this.redisTemplate = redisTemplate;
         this.questionService = questionService;
         this.playerService = playerService;
         this.roomWebSocketController = roomWebSocketController;
+        this.categoryService = categoryService;
     }
 
     public GameSession createGameSession(
@@ -39,7 +46,8 @@ public class GameService {
             int maxPlayers,
             int totalRounds,
             int timePerQuestion,
-            List<String> chosenCategories) {
+            List<Long> chosenCategoryIds,
+            String language) {
         // Create host player
         Player host = new Player();
         host.setId(playerId);
@@ -49,10 +57,13 @@ public class GameService {
         host.setReady(false);
 
         // Get all categories from database
-        List<String> allCategories = questionService.getAllCategories();
-        
-        // Create session with all categories
-        GameSession session = new GameSession(maxPlayers, totalRounds, timePerQuestion, allCategories);
+        List<Category> allCategories = categoryService.getAllCategories();
+        List<Long> allCategoryIds = allCategories.stream().map(Category::getId).collect(Collectors.toList());
+        logger.debug("all categories: "+ allCategories);
+        logger.debug("all categories IDS: "+ allCategoryIds);
+        // Create session with all categories chosen
+        GameSession session = new GameSession(maxPlayers, totalRounds, timePerQuestion, allCategoryIds);
+        session.setLanguage(language != null ? language : DEFAULT_LANG);
         session.getPlayers().add(host);
         session.setCurrentPhase(GameSession.QuestionPhase.LOBBY);
         
@@ -69,8 +80,7 @@ public class GameService {
             String username,
             String avatarUrl) {
         GameSession session = getSession(sessionId);
-        if (session != null && session.getPlayers().size() < session.getMaxPlayers() 
-            && session.getStatus() == GameSession.GameStatus.WAITING_FOR_PLAYERS) {
+        if (session != null && session.getPlayers().size() < session.getMaxPlayers()) {
             
             Player player = new Player();
             player.setId(playerId);
@@ -215,7 +225,7 @@ public class GameService {
             Question currentQuestion = getLoadedCurrentQuestion(session);
             Set<String> wrongAnswers = collectWrongAnswers(session);
             int numberOfPlayers = session.getPlayers().size();
-            List<String> finalOptions = questionService.prepareFinalOptions(currentQuestion, wrongAnswers, numberOfPlayers);
+            List<String> finalOptions = questionService.prepareFinalOptions(currentQuestion, wrongAnswers, numberOfPlayers, session.getLanguage());
             logger.info("[checkAllWrongAnswersSubmitted] Setting finalOptions: {}", finalOptions);
             session.setFinalOptions(finalOptions);
 
@@ -308,15 +318,15 @@ public class GameService {
     }
 
     private void selectNewQuestion(GameSession session) {
-        if (session.getChosenCategories().isEmpty()) {
+        if (session.getChosenCategoryIds().isEmpty()) {
             throw new IllegalStateException("No categories chosen for the game session.");
         }
-        String randomCategory = session.getChosenCategories().get(new Random().nextInt(session.getChosenCategories().size()));
+        Long randomCategoryId = session.getChosenCategoryIds().get(new Random().nextInt(session.getChosenCategoryIds().size()));
         int randomDifficulty = new Random().nextInt(2) + 1;
         
-        Question newQuestion = questionService.getRandomQuestion(randomCategory, randomDifficulty);
+        Question newQuestion = questionService.getRandomQuestion(randomCategoryId, randomDifficulty, session.getLanguage());
         if (newQuestion == null) {
-            throw new IllegalStateException("Could not find a question for the given categories and difficulty: "+randomCategory);
+            throw new IllegalStateException("Could not find a question for the given categories and difficulty: "+randomCategoryId);
         }
         session.setCurrentQuestionId(newQuestion.getId());
         session.setCurrentPhase(GameSession.QuestionPhase.COLLECTING_WRONG_ANSWERS);
@@ -334,7 +344,7 @@ public class GameService {
         Set<String> wrongAnswers = session.getPlayers().stream()
                 .filter(Player::isHasAnswered)
                 .map(Player::getWrongAnswerSubmitted)
-                .filter(answer -> answer != null && !questionService.isCorrectAnswer(currentQuestion, answer) && !answer.isEmpty())
+                .filter(answer -> answer != null && !questionService.isCorrectAnswer(currentQuestion, answer, session.getLanguage()) && !answer.isEmpty())
                 .collect(Collectors.toSet());
         logger.info("[collectWrongAnswers] wrong answers collected: {}", wrongAnswers);
         return wrongAnswers;
@@ -357,16 +367,16 @@ public class GameService {
 
         session.getPlayers().forEach(player -> {
             // Rule 1: Correct answer scoring
-            if (player.isHasAnswered() && questionService.isCorrectAnswer(currentQuestion, player.getCurrentAnswer())) {
+            if (player.isHasAnswered() && questionService.isCorrectAnswer(currentQuestion, player.getCurrentAnswer(), session.getLanguage())) {
                 int points = currentQuestion.getDifficulty();
                 player.addScore(points);
                 logger.info("Player {} answered correctly and gained {} points. New score: {}", player.getUsername(), points, player.getScore());
             }
             // Rule 1.5: Trap answer penalty (if not correct answer)
-            else if (player.isHasAnswered() && player.getCurrentAnswer() != null && currentQuestion.getTrapAnswer() != null
-                    && !currentQuestion.getTrapAnswer().isEmpty()
-                    && player.getCurrentAnswer().equals(currentQuestion.getTrapAnswer())
-                    && !questionService.isCorrectAnswer(currentQuestion, player.getCurrentAnswer())) {
+            else if (player.isHasAnswered() && player.getCurrentAnswer() != null && currentQuestion.getTrapAnswerEn() != null
+                    && !currentQuestion.getTrapAnswerEn().isEmpty()
+                    && player.getCurrentAnswer().equals(currentQuestion.getTrapAnswerEn())
+                    && !questionService.isCorrectAnswer(currentQuestion, player.getCurrentAnswer(), session.getLanguage())) {
                 player.addScore(-1);
                 logger.info("Player {} selected the trap answer and lost 1 point. New score: {}", player.getUsername(), player.getScore());
             }
@@ -424,8 +434,8 @@ public class GameService {
         return null;
     }
 
-    public GameSession selectCategory(String sessionId, String playerId, String category) {
-        logger.info("Selecting category {} for session {} by player {}", category, sessionId, playerId);
+    public GameSession selectCategory(String sessionId, String playerId, Long categoryId) {
+        logger.info("Selecting category {} for session {} by player {}", categoryId, sessionId, playerId);
         
         GameSession session = getSession(sessionId);
         if (session == null) {
@@ -441,58 +451,50 @@ public class GameService {
         }
 
         // Verify the category is in the chosen categories
-        if (!session.getChosenCategories().contains(category)) {
-            throw new IllegalArgumentException("Category not available: " + category);
+        if (!session.getChosenCategoryIds().contains(categoryId)) {
+            throw new IllegalArgumentException("Category not available: " + categoryId);
         }
 
         // Store the selected category
-        session.setSelectedCategory(category);
+        session.setSelectedCategory(categoryId); // Assuming setSelectedCategory exists
         session.setCurrentPhase(GameSession.QuestionPhase.DIFFICULTY_SELECTION);
         saveSession(session);
         roomWebSocketController.broadcastRoomUpdate(sessionId, session);
         
-        logger.info("Category {} selected successfully for session {}", category, sessionId);
+        logger.info("Category {} selected successfully for session {}", categoryId, sessionId);
         return session;
     }
 
-    public GameSession selectDifficulty(String sessionId, String playerId, int difficulty) {
-        logger.info("Selecting difficulty {} for session {} by player {}", difficulty, sessionId, playerId);
-        
+    public GameSession selectDifficulty(String sessionId, String playerId, int difficulty, Long categoryId) {
+        logger.info("Selecting difficulty {} for session {} by player {} and category {}", difficulty, sessionId, playerId, categoryId);
         GameSession session = getSession(sessionId);
         if (session == null) {
             throw new IllegalArgumentException("Session not found: " + sessionId);
         }
-
         // Verify it's the correct player's turn
         int currentPlayerIndex = (session.getCurrentRound() - 1) % session.getPlayers().size();
         Player currentPlayer = session.getPlayers().get(currentPlayerIndex);
-        
         if (!currentPlayer.getId().equals(playerId)) {
             throw new IllegalArgumentException("Not your turn to select difficulty");
         }
-
         // Verify difficulty is valid
         if (difficulty < 1 || difficulty > 3) {
             throw new IllegalArgumentException("Invalid difficulty level: " + difficulty);
         }
-
         // Store the selected difficulty and get a question
         session.setSelectedDifficulty(difficulty);
-        
+        session.setSelectedCategory(categoryId);
         // Get a question for the selected category and difficulty
-        Question question = questionService.getRandomQuestion(session.getSelectedCategory(), difficulty);
+        Question question = questionService.getRandomQuestion(categoryId, difficulty, session.getLanguage());
         if (question == null) {
-            throw new IllegalStateException("No question found for category " + session.getSelectedCategory() + " and difficulty " + difficulty);
+            throw new IllegalStateException("No question found for category " + categoryId + " and difficulty " + difficulty);
         }
-        
         session.setCurrentQuestionId(question.getId());
         session.setCurrentPhase(GameSession.QuestionPhase.COLLECTING_WRONG_ANSWERS);
         session.setFinalOptions(new ArrayList<>());
         resetPlayerStates(session);
-        
         saveSession(session);
         roomWebSocketController.broadcastRoomUpdate(sessionId, session);
-        
         logger.info("Difficulty {} selected and question loaded for session {}", difficulty, sessionId);
         return session;
     }
@@ -525,7 +527,7 @@ public class GameService {
         Question currentQuestion = getLoadedCurrentQuestion(session);
         Set<String> wrongAnswers = collectWrongAnswers(session);
         int numberOfPlayers = session.getPlayers().size();
-        List<String> finalOptions = questionService.prepareFinalOptions(currentQuestion, wrongAnswers, numberOfPlayers);
+        List<String> finalOptions = questionService.prepareFinalOptions(currentQuestion, wrongAnswers, numberOfPlayers, session.getLanguage());
         logger.info("[handleWrongAnswerTimeout] Setting finalOptions: {}", finalOptions);
         session.setFinalOptions(finalOptions);
 

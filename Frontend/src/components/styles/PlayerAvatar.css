@@ -94,4 +94,17 @@
 .player-avatar-container.large .player-score {
   font-size: 1rem;
   padding: 3px 6px;
+}
+
+.player-avatar-container.xsmall .player-avatar {
+  width: 15px;
+  height: 15px;
+}
+.player-avatar-container.xsmall .player-avatar-name {
+  font-size: 0.5rem;
+  bottom: -2px;
+}
+.player-avatar-container.xsmall .player-score {
+  font-size: 0.5rem;
+  padding: 0 2px;
 } 

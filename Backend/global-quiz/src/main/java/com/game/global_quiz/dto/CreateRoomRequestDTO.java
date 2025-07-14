@@ -6,4 +6,5 @@ import lombok.Data;
 public class CreateRoomRequestDTO {
     private PlayerDTO hostPlayer;
     private RoomSettingsDTO roomSettings;
+    private String language;
 } 

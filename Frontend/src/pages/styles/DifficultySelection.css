@@ -1,3 +1,13 @@
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.quiz-container {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 .difficulty-selection-container {
     display: flex;
     flex-direction: column;
@@ -152,5 +162,19 @@
     width: 100%;
     max-width: 200px;
     padding: 1rem 1.5rem;
+  }
+} 
+
+@media (max-width: 600px) {
+  .difficulties-list {
+    flex-direction: column;
+    gap: 10px;
+    max-width: 100%;
+    align-items: stretch;
+  }
+  .difficulty-button {
+    width: 100%;
+    font-size: 1em;
+    padding: 10px 0;
   }
 } 

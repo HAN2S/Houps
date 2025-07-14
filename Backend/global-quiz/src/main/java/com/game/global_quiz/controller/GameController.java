@@ -206,16 +206,22 @@ public class GameController {
         @RequestBody Map<String, Object> request
     ) {
         try {
-            String category = (String) request.get("category");
+            Object categoryObj = request.get("category");
+            Long categoryId = null;
+            if (categoryObj instanceof Number) {
+                categoryId = ((Number) categoryObj).longValue();
+            } else if (categoryObj instanceof String) {
+                categoryId = Long.valueOf((String) categoryObj);
+            }
             String playerId = (String) request.get("playerId");
-            
-            if (category == null || playerId == null) {
+
+            if (categoryId == null || playerId == null) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Category and playerId are required");
                 return ResponseEntity.badRequest().body(error);
             }
-            
-            GameSession session = gameService.selectCategory(sessionId, playerId, category);
+
+            GameSession session = gameService.selectCategory(sessionId, playerId, categoryId);
             return ResponseEntity.ok(session);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
@@ -247,16 +253,22 @@ public class GameController {
     ) {
         try {
             Integer difficulty = (Integer) request.get("difficulty");
-            String category = (String) request.get("category");
+            Object categoryObj = request.get("category");
+            Long categoryId = null;
+            if (categoryObj instanceof Number) {
+                categoryId = ((Number) categoryObj).longValue();
+            } else if (categoryObj instanceof String) {
+                categoryId = Long.valueOf((String) categoryObj);
+            }
             String playerId = (String) request.get("playerId");
-            
-            if (difficulty == null || category == null || playerId == null) {
+
+            if (difficulty == null || categoryId == null || playerId == null) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Difficulty, category, and playerId are required");
                 return ResponseEntity.badRequest().body(error);
             }
-            
-            GameSession session = gameService.selectDifficulty(sessionId, playerId, difficulty);
+
+            GameSession session = gameService.selectDifficulty(sessionId, playerId, difficulty, categoryId);
             return ResponseEntity.ok(session);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
