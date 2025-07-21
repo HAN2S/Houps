@@ -91,7 +91,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ session }) => {
         );
         setQuestion({
           questionId: data.id,
-          themeId: undefined, // or map from data.category if you have the mapping
+          themeId: undefined, 
           questionType: data.imageUrl ? 'Image' : 'Text',
           questionText,
           correctAnswer,

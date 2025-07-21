@@ -567,4 +567,8 @@ public class GameService {
         saveSession(session);
         roomWebSocketController.broadcastRoomUpdate(session.getSessionId(), session);
     }
+
+    public int getActiveSessionCount() {
+        return redisTemplate.keys("game:*") != null ? redisTemplate.keys("game:*").size() : 0;
+    }
 } 

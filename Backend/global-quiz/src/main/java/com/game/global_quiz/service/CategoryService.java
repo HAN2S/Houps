@@ -34,4 +34,22 @@ public class CategoryService {
     public Category save(Category category) {
         return categoryRepository.save(category);
     }
+
+    public Category updateCategory(Long id, Category categoryDetails) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+
+        category.setNameFr(categoryDetails.getNameFr());
+        category.setNameEn(categoryDetails.getNameEn());
+        category.setNameAr(categoryDetails.getNameAr());
+
+        return categoryRepository.save(category);
+    }
+
+    public void deleteCategory(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new RuntimeException("Category not found with id: " + id);
+        }
+        categoryRepository.deleteById(id);
+    }
 } 
