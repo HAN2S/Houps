@@ -12,6 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 import java.util.stream.Collectors;
 import com.game.global_quiz.model.FallbackOption;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
 
 @Service
 public class QuestionService {
@@ -72,6 +77,21 @@ public class QuestionService {
 
     public List<Category> getAllCategoriesFromService() {
         return categoryService.getAllCategories();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Question> getAllQuestions(Long categoryId, Integer difficulty, Pageable pageable) {
+        Specification<Question> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+            if (difficulty != null) {
+                predicates.add(cb.equal(root.get("difficulty"), difficulty));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        return questionRepository.findAll(spec, pageable);
     }
 
     @Transactional
