@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment and Sensitive Files ###
+.env
+.env.local
+.env.dev
+.env.prod
+application-local.properties
+application-dev.properties
+application-prod.properties
+*.key
+*.pem
+secrets/
+config/secrets/
