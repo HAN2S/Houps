@@ -17,6 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class QuestionService {
@@ -80,14 +83,20 @@ public class QuestionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Question> getAllQuestions(Long categoryId, Integer difficulty, Pageable pageable) {
+    public Page<Question> getAllQuestions(Long id, Long categoryId, Integer difficulty, String questionTextEn, Pageable pageable) {
         Specification<Question> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            if (id != null) {
+                predicates.add(cb.equal(root.get("id"), id));
+            }
             if (categoryId != null) {
                 predicates.add(cb.equal(root.get("category").get("id"), categoryId));
             }
             if (difficulty != null) {
                 predicates.add(cb.equal(root.get("difficulty"), difficulty));
+            }
+            if (questionTextEn != null && !questionTextEn.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("questionTextEn")), "%" + questionTextEn.toLowerCase() + "%"));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -201,5 +210,102 @@ public class QuestionService {
             throw new IllegalArgumentException("Question not found with id: " + id);
         }
         questionRepository.deleteById(id);
+    }
+
+    public Map<String, Object> importQuestionsFromExcel(MultipartFile file) {
+        List<String> errors = new ArrayList<>();
+        int successCount = 0;
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            int rowNum = 0;
+            for (Row row : sheet) {
+                if (rowNum++ == 0) continue; // Skip header
+                try {
+                    String questionTextFr = getCellString(row, 0);
+                    String questionTextEn = getCellString(row, 1);
+                    String questionTextAr = getCellString(row, 2);
+                    String correctAnswerFr = getCellString(row, 3);
+                    String correctAnswerEn = getCellString(row, 4);
+                    String correctAnswerAr = getCellString(row, 5);
+                    String categoryName = getCellString(row, 6);
+                    int difficulty = (int) row.getCell(7).getNumericCellValue();
+                    String imageUrl = getCellString(row, 8);
+                    String trapAnswerFr = getCellString(row, 9);
+                    String trapAnswerEn = getCellString(row, 10);
+                    String trapAnswerAr = getCellString(row, 11);
+                    String fallbackFr = getCellString(row, 12);
+                    String fallbackEn = getCellString(row, 13);
+                    String fallbackAr = getCellString(row, 14);
+
+                    Category category = categoryService.findByNameFr(categoryName)
+                        .orElseGet(() -> categoryService.findByNameEn(categoryName)
+                        .orElseGet(() -> categoryService.findByNameAr(categoryName).orElse(null)));
+                    if (category == null) {
+                        errors.add("Row " + rowNum + ": Category not found: " + categoryName);
+                        continue;
+                    }
+
+                    Question question = new Question();
+                    question.setQuestionTextFr(questionTextFr);
+                    question.setQuestionTextEn(questionTextEn);
+                    question.setQuestionTextAr(questionTextAr);
+                    question.setCorrectAnswerFr(correctAnswerFr);
+                    question.setCorrectAnswerEn(correctAnswerEn);
+                    question.setCorrectAnswerAr(correctAnswerAr);
+                    question.setCategory(category);
+                    question.setDifficulty(difficulty);
+                    question.setImageUrl(imageUrl);
+                    question.setTrapAnswerFr(trapAnswerFr);
+                    question.setTrapAnswerEn(trapAnswerEn);
+                    question.setTrapAnswerAr(trapAnswerAr);
+
+                    List<FallbackOption> fallbackOptions = new ArrayList<>();
+                    if (fallbackFr != null && !fallbackFr.isEmpty()) {
+                        for (String f : fallbackFr.split(";")) {
+                            FallbackOption fo = new FallbackOption();
+                            fo.setFallbackFr(f.trim());
+                            fallbackOptions.add(fo);
+                        }
+                    }
+                    if (fallbackEn != null && !fallbackEn.isEmpty()) {
+                        String[] enArr = fallbackEn.split(";");
+                        for (int i = 0; i < enArr.length && i < fallbackOptions.size(); i++) {
+                            fallbackOptions.get(i).setFallbackEn(enArr[i].trim());
+                        }
+                    }
+                    if (fallbackAr != null && !fallbackAr.isEmpty()) {
+                        String[] arArr = fallbackAr.split(";");
+                        for (int i = 0; i < arArr.length && i < fallbackOptions.size(); i++) {
+                            fallbackOptions.get(i).setFallbackAr(arArr[i].trim());
+                        }
+                    }
+                    question.setFallbackOptions(fallbackOptions);
+
+                    try {
+                        saveQuestion(question);
+                        successCount++;
+                    } catch (Exception e) {
+                        errors.add("Row " + rowNum + ": " + e.getMessage());
+                    }
+                } catch (Exception e) {
+                    errors.add("Row " + rowNum + ": " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            errors.add("Failed to process file: " + e.getMessage());
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("imported", successCount);
+        result.put("errors", errors);
+        return result;
+    }
+
+    private String getCellString(Row row, int colIdx) {
+        Cell cell = row.getCell(colIdx);
+        if (cell == null) return null;
+        if (cell.getCellType() == CellType.STRING) return cell.getStringCellValue();
+        if (cell.getCellType() == CellType.NUMERIC) return String.valueOf(cell.getNumericCellValue());
+        if (cell.getCellType() == CellType.BOOLEAN) return String.valueOf(cell.getBooleanCellValue());
+        return null;
     }
 } 

@@ -335,6 +335,141 @@
   outline: 2px solid #90C67C;
 }
 
+/* Modern Pagination Styles */
+.modern-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 1.5rem 0 0.5rem 0;
+  padding: 0.5rem 1rem;
+  background: #f6fbf4;
+  border-radius: 2rem;
+  box-shadow: 0 2px 8px rgba(50, 142, 110, 0.07);
+}
+.modern-pagination button {
+  border: none;
+  background: #e1eebc;
+  color: #328e6e;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 1.2rem;
+  padding: 0.5rem 1.1rem;
+  margin: 0 2px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 2px rgba(50, 142, 110, 0.04);
+}
+.modern-pagination button.active,
+.modern-pagination button[aria-current="page"] {
+  background: #328e6e;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(50, 142, 110, 0.13);
+}
+.modern-pagination button:hover:not(:disabled):not(.active):not([aria-current="page"]) {
+  background: #b6e2c6;
+  color: #222;
+}
+.modern-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-icon-btn {
+  background: #e1eebc;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 2px rgba(50, 142, 110, 0.04);
+  color: #328e6e; /* currentColor for icons */
+  font-size: 1.2rem;
+  position: relative;
+}
+.admin-icon-btn:hover { background: #b6e2c6; color: #1f3d33; }
+
+/* Force icon visibility for react-icons (Font Awesome uses fill) */
+.admin-icon-btn svg { width: 22px; height: 22px; display: block; }
+.admin-icon-btn svg path,
+.admin-icon-btn svg rect,
+.admin-icon-btn svg circle,
+.admin-icon-btn svg polygon,
+.admin-icon-btn svg line,
+.admin-icon-btn svg polyline { fill: currentColor !important; stroke: none !important; }
+
+.upload-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.upload-modal {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(50,142,110,0.13);
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-width: 340px;
+  max-width: 95vw;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.upload-modal h2 {
+  color: #328e6e;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+}
+.upload-dropzone {
+  border: 2px dashed #b6e2c6;
+  border-radius: 1rem;
+  background: #f6fbf4;
+  width: 100%;
+  min-width: 260px;
+  min-height: 100px;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.18s, background 0.18s;
+}
+.upload-dropzone:hover {
+  border-color: #328e6e;
+  background: #e1eebc;
+}
+
+.upload-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 10;
+  border-radius: 50%;
+  transition: background 0.18s;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.upload-close-btn:hover {
+  background: #e1eebc;
+}
+
 
 @media (max-width: 900px) {
   .admin-card {

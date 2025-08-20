@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Modal from 'react-modal';
 import { Buffer } from 'buffer';
 import '../styles/AdminPanel.css';
+import { FaFilter, FaPlus, FaUpload, FaTimes, FaEdit, FaTrash } from 'react-icons/fa';
 
 // Interfaces to match backend models
 interface Category {
@@ -63,14 +64,6 @@ const ManageQuestions = () => {
     });
     const [showFilters, setShowFilters] = useState(false);
 
-    // Filtered questions (client-side)
-    const filteredQuestions = questions.filter(q =>
-        (filters.id === '' || String(q.id).includes(filters.id)) &&
-        (filters.category === '' || q.category.nameEn.toLowerCase().includes(filters.category.toLowerCase())) &&
-        (filters.difficulty === '' || String(q.difficulty).includes(filters.difficulty)) &&
-        (filters.questionTextEn === '' || q.questionTextEn.toLowerCase().includes(filters.questionTextEn.toLowerCase()))
-    );
-
     // Helper to display difficulty as text
     const difficultyLabel = (d: number | string) => {
         if (d === 1 || d === '1') return 'Easy';
@@ -88,12 +81,16 @@ const ManageQuestions = () => {
     const fetchQuestions = useCallback(() => {
         const params = new URLSearchParams({
             page: page.toString(),
-            size: '10', // 10 questions per page
+            size: '10',
             sort: 'id,desc'
         });
-        if (filterCategory) {
-            params.append('categoryId', filterCategory);
+        if (filters.id) params.append('id', filters.id);
+        if (filters.category) {
+            const cat = categories.find(c => c.nameEn === filters.category);
+            if (cat) params.append('categoryId', String(cat.id));
         }
+        if (filters.difficulty) params.append('difficulty', filters.difficulty);
+        if (filters.questionTextEn) params.append('questionTextEn', filters.questionTextEn);
 
         fetch(`http://localhost:8081/api/admin/questions?${params.toString()}`, { headers: getAuthHeaders() })
             .then(res => res.json())
@@ -102,11 +99,16 @@ const ManageQuestions = () => {
                 setTotalPages(data.totalPages);
             })
             .catch(err => console.error("Failed to fetch questions", err));
-    }, [page, filterCategory]);
+    }, [page, filters, categories]);
+
+    // Reset to page 0 when filters change
+    useEffect(() => {
+        setPage(0);
+    }, [filters]);
 
     useEffect(() => {
         fetchQuestions();
-    }, [fetchQuestions]);
+    }, [fetchQuestions, page]);
 
     useEffect(() => {
         // Fetch categories for the dropdown
@@ -198,16 +200,136 @@ const ManageQuestions = () => {
         }
     };
 
+    const [importFile, setImportFile] = useState<File | null>(null);
+    const [importResult, setImportResult] = useState<{imported: number, errors: string[]}|null>(null);
+    const [importLoading, setImportLoading] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setImportFile(e.target.files[0]);
+        }
+    };
+    const handleImport = async () => {
+        if (!importFile) return;
+        setImportLoading(true);
+        setImportResult(null);
+        const formData = new FormData();
+        formData.append('file', importFile);
+        try {
+            const res = await fetch('http://localhost:8081/api/admin/questions/import', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: formData as any
+            } as any);
+            if (!res.ok) throw new Error('Import failed');
+            const data = await res.json();
+            setImportResult(data);
+            fetchQuestions();
+        } catch (err: any) {
+            setImportResult({imported: 0, errors: [err.message]});
+        } finally {
+            setImportLoading(false);
+        }
+    };
+    const handleFileButtonClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleToggleFilters = () => {
+        setShowFilters(f => {
+            if (f) {
+                // Hiding filters: reset all filter values
+                setFilters({ id: '', category: '', difficulty: '', questionTextEn: '' });
+            }
+            return !f;
+        });
+    };
+
+    const [showUploadModal, setShowUploadModal] = useState(false);
+
     return (
         <div className="admin-card">
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
                 <h1>Manage Questions</h1>
                 <div style={{display: 'flex', gap: '1rem'}}>
-                    <button className="admin-btn" onClick={() => setShowFilters(f => !f)}>{showFilters ? 'Hide Filters' : 'Show Filters'}</button>
-                    <button className="admin-btn" onClick={() => openModal(null)}>Add Question</button>
+                    <button
+                      className="admin-icon-btn"
+                      onClick={handleToggleFilters}
+                      title={showFilters ? 'Hide Filters' : 'Show Filters'}
+                      aria-label={showFilters ? 'Hide Filters' : 'Show Filters'}
+                      style={{ background: '#e1eebc', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    >
+                      <FaFilter size={22} color="#328e6e" />
+                    </button>
+                    <button
+                      className="admin-icon-btn"
+                      onClick={() => openModal(null)}
+                      title="Add Question"
+                      aria-label="Add Question"
+                      style={{ background: '#e1eebc', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    >
+                      <FaPlus size={22} color="#328e6e" />
+                    </button>
+                    <button
+                      className="admin-icon-btn"
+                      onClick={() => setShowUploadModal(true)}
+                      title="Import Excel"
+                      aria-label="Import Excel"
+                      style={{ background: '#e1eebc', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    >
+                      <FaUpload size={22} color="#328e6e" />
+                    </button>
                 </div>
             </div>
-            
+            {/* Upload Modal/Dropzone */}
+            {showUploadModal && (
+                <div className="upload-modal-overlay" onClick={() => setShowUploadModal(false)}>
+                    <div className="upload-modal" onClick={e => e.stopPropagation()}>
+                        {/* Close Icon Button */}
+                        <button
+                            className="upload-close-btn"
+                            onClick={() => setShowUploadModal(false)}
+                            title="Close"
+                            aria-label="Close"
+                        >
+                            <FaTimes size={26} color="#328e6e" />
+                        </button>
+                        <h2>Import Questions from Excel</h2>
+                        <div className="upload-dropzone" onClick={handleFileButtonClick} style={{cursor: 'pointer'}}>
+                            <input
+                                type="file"
+                                accept=".xlsx"
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                                onChange={handleFileChange}
+                            />
+                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 120}}>
+                                <svg width="48" height="48" fill="none" stroke="#328e6e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <span style={{marginTop: 12, color: '#328e6e', fontWeight: 600}}>{importFile ? importFile.name : 'Click to choose Excel file (.xlsx)'}</span>
+                            </div>
+                        </div>
+                        <button
+                            className="admin-btn"
+                            onClick={handleImport}
+                            disabled={!importFile || importLoading}
+                            style={{ marginTop: 20, minWidth: 120 }}
+                        >
+                            {importLoading ? 'Importing...' : 'Import Excel'}
+                        </button>
+                        {importResult && (
+                            <div style={{marginTop: '1rem'}}>
+                                <b>Imported:</b> {importResult.imported} <br/>
+                                {importResult.errors.length > 0 && (
+                                    <span style={{color: 'red'}}>
+                                        Errors:<ul>{importResult.errors.map((e, i) => <li key={i}>{e}</li>)}</ul>
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <div className="admin-filters" style={{marginBottom: '1rem', display: showFilters ? 'flex' : 'none', gap: '1rem'}}>
             </div>
 
@@ -245,7 +367,7 @@ const ManageQuestions = () => {
                     )}
                 </thead>
                 <tbody>
-                    {filteredQuestions.map(q => (
+                    {questions.map(q => (
                         <tr key={q.id}>
                             <td style={{width: '7%', textAlign: 'center'}}>{q.id}</td>
                             <td style={{width: '13%', textAlign: 'center'}}>{q.category.nameEn}</td>
@@ -253,10 +375,10 @@ const ManageQuestions = () => {
                             <td style={{width: '60%', textAlign: 'center'}}>{q.questionTextEn}</td>
                             <td style={{width: '7%', textAlign: 'center'}}>
                                 <button className="admin-action-btn edit" title="Edit" onClick={() => openModal(q)}>
-                                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M15.41 2.59a2 2 0 0 1 2.83 2.83l-1.09 1.09-2.83-2.83 1.09-1.09zm-2.12 2.12l2.83 2.83-8.59 8.59H4.7v-2.83l8.59-8.59z"/></svg>
+                                  <FaEdit size={18} color="#328e6e" />
                                 </button>
                                 <button className="admin-action-btn delete" title="Delete" onClick={() => handleDelete(q.id)}>
-                                  <svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 8v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V8m-9 0h10m-7-3V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1" stroke="#c0392b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  <FaTrash size={18} color="#c0392b" />
                                 </button>
                             </td>
                         </tr>
@@ -264,10 +386,22 @@ const ManageQuestions = () => {
                 </tbody>
             </table>
 
-            <div className="pagination-controls" style={{marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '0.5rem'}}>
-                <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>Prev</button>
-                <span>Page {page + 1} of {totalPages}</span>
-                <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}>Next</button>
+            {/* Pagination Controls - modern look */}
+            <div className="modern-pagination" aria-label="Pagination Navigation">
+                <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} aria-label="Previous Page">Prev</button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                        key={i}
+                        onClick={() => setPage(i)}
+                        className={i === page ? 'active' : ''}
+                        aria-current={i === page ? 'page' : undefined}
+                        disabled={i === page}
+                        aria-label={`Page ${i + 1}`}
+                    >
+                        {i + 1}
+                    </button>
+                ))}
+                <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} aria-label="Next Page">Next</button>
             </div>
 
             <Modal isOpen={isModalOpen} onRequestClose={closeModal} 
