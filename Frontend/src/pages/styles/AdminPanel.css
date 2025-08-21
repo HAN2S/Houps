@@ -1,56 +1,154 @@
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background: #ECFAE5;
+  background: #F6FBF4;
+  position: relative;
 }
 
 .admin-sidebar {
-  width: 220px;
-  background: #67AE6E;
+  width: 60px; /* Small vertical bar when closed */
+  background: linear-gradient(135deg, #67AE6E 0%, #328E6E 100%);
   color: #fff;
-  padding: 2rem 1rem;
+  padding: 1rem 0.5rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  box-shadow: 4px 0 12px rgba(0,0,0,0.08);
+  transition: width 0.3s ease, transform 0.3s ease;
+  z-index: 20;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  transform: translateX(0);
+}
+
+.admin-sidebar.open {
+  width: 240px; /* Full width when open */
   align-items: flex-start;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
-  z-index: 10;
+  padding: 2.5rem 1.5rem;
 }
-.admin-sidebar h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
+
+.admin-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 2.5rem;
+}
+
+.admin-sidebar-title {
+  font-size: 1.8rem;
+  font-weight: 800;
   color: #E1EEBC;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.admin-sidebar ul {
+
+.admin-sidebar-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #E1EEBC;
+  transition: transform 0.3s ease;
+}
+
+.admin-sidebar-toggle:hover {
+  transform: scale(1.1);
+}
+
+.admin-sidebar-menu {
   list-style: none;
   padding: 0;
   width: 100%;
+  flex-grow: 1;
 }
-.admin-sidebar li {
-  margin-bottom: 1.2rem;
+
+.admin-sidebar-menu.hidden {
+  display: none; /* Hide menu when closed */
 }
-.admin-sidebar a {
+
+.admin-sidebar-menu.visible {
+  display: block; /* Show menu when open */
+}
+
+.admin-sidebar-link {
   color: #fff;
-  font-weight: 500;
-  font-size: 1.1rem;
+  font-weight: 600;
+  font-size: 1.2rem;
   text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  display: block;
-  transition: background 0.2s, color 0.2s;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.admin-sidebar a.active, .admin-sidebar a:hover {
-  background: #328E6E;
+
+.admin-sidebar-link:hover,
+.admin-sidebar-link.active {
+  background: rgba(225, 238, 188, 0.2);
   color: #E1EEBC;
+  transform: translateX(5px);
+}
+
+.admin-sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #E1EEBC;
+  border-radius: 0 0.75rem 0.75rem 0;
+}
+
+.admin-sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3); /* Semi-transparent overlay */
+  z-index: 10;
 }
 
 .admin-main {
   flex: 1;
-  padding: 2rem 1rem;
+  padding: 2.5rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #ECFAE5;
+  background: #F6FBF4;
+  overflow-y: auto;
+  transition: padding-left 0.3s ease;
+  padding-left: 60px; /* Space for closed sidebar */
+}
+
+.admin-main.sidebar-open {
+  padding-left: 240px; /* Expand when sidebar open */
+}
+
+.admin-sidebar-toggle-mobile {
+  display: none; /* Hidden on large screens */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #328E6E;
+  font-size: 1.5rem;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 50;
 }
 
 .admin-card {
@@ -225,60 +323,119 @@
     background-color: #45a049;
 }
 
-.admin-modal-card {
-  background: #67AE6E;
-  color: #fff;
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  padding: 2.5rem 2rem 2rem 2rem;
-  max-width: 500px;
-  margin: auto;
+/* Updated Question Modal Styles */
+.question-modal {
+  background: #fff;
+  border-radius: 1.2rem;
+  padding: 0;
+  min-width: 340px;
+  max-width: 1000px;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.question-modal-content {
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
-.admin-modal-card h2 {
-  font-size: 1.5rem;
+
+.question-modal-content h2 {
+  color: #328e6e;
+  font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 1.2rem;
-  color: #fff;
   text-align: center;
 }
-.admin-modal-card .admin-form {
+
+.question-form {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-height: 60vh; /* Reduced to allow more room for header and actions */
+  overflow-y: auto;
+  padding: 0 1rem; /* Added padding to fit scrollbar inside */
+  box-sizing: border-box; /* Ensures padding is included in width/height */
 }
-.admin-modal-card input,
-.admin-modal-card select {
-  width: 90%;
-  padding: 0.75rem 1rem;
-  border: none;
+
+.question-form::-webkit-scrollbar {
+  width: 8px;
+}
+.question-form::-webkit-scrollbar-track {
+  background: #f6fbf4;
+  border-radius: 4px;
+}
+.question-form::-webkit-scrollbar-thumb {
+  background: #328e6e;
+  border-radius: 4px;
+}
+.question-form::-webkit-scrollbar-thumb:hover {
+  background: #45a049;
+}
+
+.form-section {
+  background: #f6fbf4;
   border-radius: 0.75rem;
-  margin-top: 0.2rem;
+  padding: 0.8rem;
+  border: 1px solid #b6e2c6;
+}
+
+.form-section label {
+  display: block;
+  color: #328e6e;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-section input,
+.form-section select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #328e6e;
+  border-radius: 0.5rem;
   background: #fff;
   color: #222;
   font-size: 1rem;
   box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-  margin-bottom: 1rem;
-}
-.admin-modal-card input:focus,
-.admin-modal-card select:focus {
-  outline: 2px solid #90C67C;
-}
-.admin-modal-card .admin-btn,
-.admin-modal-card .admin-btn-secondary {
-  width: 100%;
-  margin: 0.5rem 0 0 0;
+  margin-bottom: 0.75rem;
+  box-sizing: border-box; /* Added to ensure padding doesn't overflow width */
+  max-width: 100%; /* Added to cap width at container size */
 }
 
-.admin-modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 1000;
+.form-section input:focus,
+.form-section select:focus {
+  outline: 2px solid #90C67C;
+}
+.fallback-set {
+  border-bottom: 1px solid #b6e2c6; /* Light green divider between sets */
+  padding-bottom: 0.25rem;
+  margin-bottom: 1.5rem; /* Space between sets */
+}
+
+.fallback-set:last-child {
+  border-bottom: none; /* Remove divider from the last set */
+  margin-bottom: 0; /* Remove extra margin from the last set */
+}
+
+.fallback-group {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: row;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .admin-action-btn {
@@ -287,7 +444,7 @@
   cursor: pointer;
   padding: 0.4rem;
   border-radius: 0.5rem;
-  display: inline-flex;
+  display: inline-grid;
   align-items: center;
   justify-content: center;
   transition: background 0.15s;
@@ -382,26 +539,26 @@
   border-radius: 50%;
   width: 44px;
   height: 44px;
-  display: flex;
+  display: inline-grid;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.18s, box-shadow 0.18s;
-  box-shadow: 0 1px 2px rgba(50, 142, 110, 0.04);
-  color: #328e6e; /* currentColor for icons */
+  transition: background 0.18s;
   font-size: 1.2rem;
-  position: relative;
 }
+
+
 .admin-icon-btn:hover { background: #b6e2c6; color: #1f3d33; }
 
 /* Force icon visibility for react-icons (Font Awesome uses fill) */
-.admin-icon-btn svg { width: 22px; height: 22px; display: block; }
-.admin-icon-btn svg path,
-.admin-icon-btn svg rect,
-.admin-icon-btn svg circle,
-.admin-icon-btn svg polygon,
-.admin-icon-btn svg line,
-.admin-icon-btn svg polyline { fill: currentColor !important; stroke: none !important; }
+.admin-icon-btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  color: #ffffff; /* Explicitly set fill to white */
+  visibility: visible !important;
+  opacity: 1 !important;
+}
 
 .upload-modal-overlay {
   position: fixed;
@@ -420,11 +577,15 @@
   min-width: 340px;
   max-width: 95vw;
   min-height: 220px;
+  max-height: 80vh; /* Limit modal height */
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  overflow-y: hidden; /* Allow scrolling if content overflows */
+  overflow-x: hidden; /* Allow scrolling if content overflows */
 }
+
 .upload-modal h2 {
   color: #328e6e;
   font-size: 1.3rem;
@@ -468,6 +629,70 @@
 }
 .upload-close-btn:hover {
   background: #e1eebc;
+}
+
+/* Import Errors Styling */
+.import-errors-container {
+  width: 100%;
+  border: 1px solid #ffcdd2;
+  border-radius: 0.5rem;
+  background: #ffebee;
+  overflow: hidden;
+  max-height: 140px;
+  margin-top: 0.5rem;
+}
+
+.import-errors-header {
+  color: white;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-bottom: 1px solid #ffcdd2;
+}
+
+.import-errors-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.import-error-item {
+  background: white;
+  border: 1px solid #ffcdd2;
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+  color: #d32f2f;
+  line-height: 1.3;
+}
+
+.import-error-item:last-child {
+  margin-bottom: 0;
+}
+
+.import-error-item:hover {
+  background: #fff3e0;
+  border-color: #ffb74d;
+}
+
+/* Custom scrollbar for error list */
+.import-errors-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.import-errors-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.import-errors-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.import-errors-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 
@@ -526,4 +751,159 @@
     padding: 1.2rem 0.5rem;
     max-width: 98vw;
   }
+
+  .question-modal,
+  .upload-modal {
+    padding: 1.2rem 0.5rem;
+    max-width: 98vw;
+    max-height: 70vh;
+  }
+  .question-modal-content {
+    padding: 1.5rem 1rem;
+  }
+  .question-form {
+    gap: 1rem; /* Reduced gap for smaller screens */
+  }
+
+  .fallback-group {
+    flex-direction: column; /* Switches to column on small screens */
+    gap: 0.75rem; /* Increases gap for better readability in column layout */
+  }
 } 
+
+
+@media (max-width: 900px) {
+  .admin-sidebar {
+      padding: 1.5rem 1rem;
+  }
+  .admin-main {
+      padding: 1.5rem 1rem;
+      padding-left: 60px;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-sidebar {
+      transform: translateX(-100%); /* Hidden off-screen by default on mobile */
+      width: 240px; /* Full width when open */
+      align-items: flex-start;
+      padding: 2.5rem 1.5rem;
+      transition: transform 0.3s ease; /* Slide in/out */
+  }
+  .admin-sidebar.open {
+      transform: translateX(0); /* Slide in when open */
+  }
+  .admin-sidebar.closed {
+      width: 0; /* Completely hidden when closed */
+  }
+  .admin-sidebar-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+  }
+  .admin-sidebar-link {
+      padding: 0.5rem 1rem;
+      font-size: 1.1rem;
+  }
+  .admin-main {
+      padding-left: 0; /* No space for sidebar on mobile */
+  }
+  .admin-main.sidebar-open {
+      padding-left: 0; /* No expansion on mobile */
+  }
+  .admin-sidebar-toggle-mobile {
+      display: block; /* Show mobile toggle */
+  }
+  .admin-sidebar-overlay {
+      display: block; /* Show overlay on mobile when open */
+  }
+  .admin-sidebar-header .admin-sidebar-toggle {
+      display: block; /* Show close button in sidebar on mobile */
+  }
+}
+
+@media (max-width: 500px) {
+  .admin-sidebar-title {
+      font-size: 1.3rem;
+  }
+  .admin-sidebar-link {
+      padding: 0.4rem 0.8rem;
+      font-size: 1rem;
+  }
+  .admin-main {
+      padding: 1rem 0.5rem;
+  }
+}
+
+/* Existing Modal and Form Styles */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 1rem;
+  border-top: 1px solid #b6e2c6;
+  margin-top: auto;
+  z-index: 10; /* Ensure it stays above other content */
+}
+
+.question-modal {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(50,142,110,0.13);
+  padding: 0;
+  min-width: 340px;
+  max-width: 1000px;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden; /* Prevent overflow issues with sticky footer */
+}
+
+.question-modal-content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1; /* Allow it to take available space */
+  overflow-y: auto; /* Enable scrolling for content */
+}
+
+.question-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-height: 60vh; /* Reduced to allow room for sticky footer */
+  overflow-y: auto;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+  flex: 1; /* Ensure it fills the available space */
+}
+
+.upload-modal h2 {
+  color: #328e6e;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.upload-dropzone {
+  border: none; /* Remove dashed border since it's a form now */
+  background: none; /* Remove background to let form-section handle it */
+  width: 100%;
+  min-height: auto; /* Remove min-height for form flexibility */
+  margin-bottom: 0; /* Adjust margin as needed */
+}
+
+.error-message {
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  background: #fff3e0;
+}

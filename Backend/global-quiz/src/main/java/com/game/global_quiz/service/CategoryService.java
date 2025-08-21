@@ -1,11 +1,13 @@
 package com.game.global_quiz.service;
 
-import com.game.global_quiz.model.Category;
-import com.game.global_quiz.repository.CategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.game.global_quiz.model.Category;
+import com.game.global_quiz.repository.CategoryRepository;
 
 @Service
 public class CategoryService {
@@ -25,6 +27,19 @@ public class CategoryService {
     }
     public Optional<Category> findByNameAr(String nameAr) {
         return categoryRepository.findByNameAr(nameAr);
+    }
+
+    // Case-insensitive lookups for Excel import
+    public Optional<Category> findByNameEnIgnoreCase(String nameEn) {
+        return categoryRepository.findByNameEnIgnoreCase(nameEn);
+    }
+    
+    public Optional<Category> findByNameFrIgnoreCase(String nameFr) {
+        return categoryRepository.findByNameFrIgnoreCase(nameFr);
+    }
+    
+    public Optional<Category> findByNameArIgnoreCase(String nameAr) {
+        return categoryRepository.findByNameArIgnoreCase(nameAr);
     }
 
     public Optional<Category> findById(Long id) {

@@ -1,25 +1,36 @@
 package com.game.global_quiz.service;
 
-import com.game.global_quiz.model.Question;
-import com.game.global_quiz.repository.QuestionRepository;
-import com.game.global_quiz.model.Category;
-import com.game.global_quiz.service.CategoryService;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import java.util.*;
-import java.util.stream.Collectors;
-import com.game.global_quiz.model.FallbackOption;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import jakarta.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.game.global_quiz.model.Category;
+import com.game.global_quiz.model.FallbackOption;
+import com.game.global_quiz.model.Question;
+import com.game.global_quiz.repository.QuestionRepository;
+
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 public class QuestionService {
@@ -42,9 +53,9 @@ public class QuestionService {
     public Question getRandomQuestion(Long categoryId, int difficulty, String lang) {
         Category category = categoryService.findById(categoryId).orElse(null);
         if (category == null) return null;
-        // Assuming findRandomQuestionsByCategoryAndDifficulty returns a list, even if only one is expected.
-        // We'll then pick one randomly from that list.
-        List<Question> questions = questionRepository.findRandomQuestionsByCategoryAndDifficulty(category, difficulty, 10); // Fetch a few to pick randomly
+        List<Question> questions = questionRepository
+            .findRandomQuestionsByCategoryAndDifficulty(category, difficulty, PageRequest.of(0, 10))
+            .getContent();
         if (questions.isEmpty()) {
             return null;
         }
@@ -58,14 +69,22 @@ public class QuestionService {
             : ("en".equalsIgnoreCase(lang) || lang == null) ? categoryService.findByNameEn(categoryName).orElse(null)
             : categoryService.findByNameFr(categoryName).orElse(null);
         if (category != null && difficulty > 0) {
-            return questionRepository.findRandomQuestionsByCategoryAndDifficulty(category, difficulty, count);
+            return questionRepository
+                .findRandomQuestionsByCategoryAndDifficulty(category, difficulty, PageRequest.of(0, count))
+                .getContent();
         } else if (category != null) {
-            return questionRepository.findRandomQuestionsByCategory(category, count);
+            return questionRepository
+                .findRandomQuestionsByCategory(category, PageRequest.of(0, count))
+                .getContent();
         } else if (difficulty > 0) {
-            return questionRepository.findRandomQuestionsByDifficulty(difficulty, count);
+            return questionRepository
+                .findRandomQuestionsByDifficulty(difficulty, PageRequest.of(0, count))
+                .getContent();
         } else {
             // If no filters, get random questions from all categories
-            return questionRepository.findRandomQuestionsByCategory(null, count);
+            return questionRepository
+                .findRandomQuestionsByCategory(null, PageRequest.of(0, count))
+                .getContent();
         }
     }
 
@@ -237,9 +256,9 @@ public class QuestionService {
                     String fallbackEn = getCellString(row, 13);
                     String fallbackAr = getCellString(row, 14);
 
-                    Category category = categoryService.findByNameFr(categoryName)
-                        .orElseGet(() -> categoryService.findByNameEn(categoryName)
-                        .orElseGet(() -> categoryService.findByNameAr(categoryName).orElse(null)));
+                    Category category = categoryService.findByNameFrIgnoreCase(categoryName)
+                        .orElseGet(() -> categoryService.findByNameEnIgnoreCase(categoryName)
+                        .orElseGet(() -> categoryService.findByNameArIgnoreCase(categoryName).orElse(null)));
                     if (category == null) {
                         errors.add("Row " + rowNum + ": Category not found: " + categoryName);
                         continue;

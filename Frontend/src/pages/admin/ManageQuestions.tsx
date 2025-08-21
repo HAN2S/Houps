@@ -126,35 +126,81 @@ const ManageQuestions = () => {
     const closeModal = () => {
         setModalOpen(false);
         setEditingQuestion(null);
+        setErrorMessage(null);
     };
 
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    // Validate all fields
+    const validateFields = (): string | null => {
+        const allFields = [
+        { name: 'questionTextFr', value: editingQuestion?.questionTextFr },
+        { name: 'questionTextEn', value: editingQuestion?.questionTextEn },
+        { name: 'questionTextAr', value: editingQuestion?.questionTextAr },
+        { name: 'correctAnswerFr', value: editingQuestion?.correctAnswerFr },
+        { name: 'correctAnswerEn', value: editingQuestion?.correctAnswerEn },
+        { name: 'correctAnswerAr', value: editingQuestion?.correctAnswerAr },
+        { name: 'trapAnswerFr', value: editingQuestion?.trapAnswerFr },
+        { name: 'trapAnswerEn', value: editingQuestion?.trapAnswerEn },
+        { name: 'trapAnswerAr', value: editingQuestion?.trapAnswerAr },
+        { name: 'categoryId', value: editingQuestion?.category?.id },
+        ];
+        const emptyFields = allFields.filter(field => !field.value || (typeof field.value === 'string' && field.value.trim() === ''));
+    
+        const emptyFallbacks = editingQuestion?.fallbackOptions?.some(opt =>
+        opt.fallbackFr.trim() === '' || opt.fallbackEn.trim() === '' || opt.fallbackAr.trim() === ''
+        ) || false;
+    
+        if (emptyFields.length > 0 || emptyFallbacks) {
+        return `Please fill all fields: ${emptyFields.map(f => f.name).join(', ')}${
+            emptyFallbacks ? (emptyFields.length > 0 ? ' and ensure all fallback options are complete' : 'Ensure all fallback options are complete') : ''
+        }.`;
+        }
+        return null;
+    };
+    
+    // Prepare the payload for the API
+    const preparePayload = (): any => {
+        if (!editingQuestion) return {};
+        return {
+        ...editingQuestion,
+        category: { id: editingQuestion.category?.id }
+        };
+    };
+    
+    // Handle the API call
+    const performSave = (method: string, url: string, payload: any) => {
+        fetch(url, {
+        method,
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+        })
+        .then(res => {
+        if (!res.ok) throw new Error('Failed to save question');
+        return res.json();
+        })
+        .then(() => {
+        fetchQuestions(); // Refresh list
+        closeModal();
+        })
+        .catch(err => console.error(err.message));
+    };
+    
+    // Replace the existing handleSave function with this:
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingQuestion) return;
-
+    
+        const error = validateFields();
+        if (error) {
+        setErrorMessage(error);
+        return;
+        }
+    
         const method = editingQuestion.id ? 'PUT' : 'POST';
         const url = editingQuestion.id ? `http://localhost:8081/api/admin/questions/${editingQuestion.id}` : 'http://localhost:8081/api/admin/questions';
-        
-        // Ensure category is an object with an ID for the backend
-        const payload = {
-            ...editingQuestion,
-            category: { id: editingQuestion.category?.id }
-        };
-
-        fetch(url, {
-            method,
-            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Failed to save question');
-            return res.json();
-        })
-        .then(() => {
-            fetchQuestions(); // Refresh list
-            closeModal();
-        })
-        .catch(err => console.error(err.message));
+        const payload = preparePayload();
+    
+        performSave(method, url, payload);
     };
 
     const handleDelete = (id: number) => {
@@ -247,6 +293,20 @@ const ManageQuestions = () => {
 
     const [showUploadModal, setShowUploadModal] = useState(false);
 
+    const handleCloseUploadModal = () => {
+        setShowUploadModal(false);
+        setImportResult(null); // Clear import results when closing modal
+        setImportFile(null); // Clear selected file
+    };
+
+    const handleDeleteFallback = (index: number) => {
+        if (editingQuestion && editingQuestion.fallbackOptions) {
+            const updatedFallbacks = [...editingQuestion.fallbackOptions];
+            updatedFallbacks.splice(index, 1);
+            setEditingQuestion({ ...editingQuestion, fallbackOptions: updatedFallbacks });
+        }
+    };
+
     return (
         <div className="admin-card">
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
@@ -257,38 +317,35 @@ const ManageQuestions = () => {
                       onClick={handleToggleFilters}
                       title={showFilters ? 'Hide Filters' : 'Show Filters'}
                       aria-label={showFilters ? 'Hide Filters' : 'Show Filters'}
-                      style={{ background: '#e1eebc', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                     >
-                      <FaFilter size={22} color="#328e6e" />
+                      <FaFilter/>
                     </button>
                     <button
                       className="admin-icon-btn"
                       onClick={() => openModal(null)}
                       title="Add Question"
                       aria-label="Add Question"
-                      style={{ background: '#e1eebc', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                     >
-                      <FaPlus size={22} color="#328e6e" />
+                      <FaPlus/>
                     </button>
                     <button
                       className="admin-icon-btn"
                       onClick={() => setShowUploadModal(true)}
                       title="Import Excel"
                       aria-label="Import Excel"
-                      style={{ background: '#e1eebc', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                     >
-                      <FaUpload size={22} color="#328e6e" />
+                      <FaUpload/>
                     </button>
                 </div>
             </div>
             {/* Upload Modal/Dropzone */}
             {showUploadModal && (
-                <div className="upload-modal-overlay" onClick={() => setShowUploadModal(false)}>
+                <div className="upload-modal-overlay" onClick={handleCloseUploadModal}>
                     <div className="upload-modal" onClick={e => e.stopPropagation()}>
                         {/* Close Icon Button */}
                         <button
                             className="upload-close-btn"
-                            onClick={() => setShowUploadModal(false)}
+                            onClick={handleCloseUploadModal}
                             title="Close"
                             aria-label="Close"
                         >
@@ -317,12 +374,24 @@ const ManageQuestions = () => {
                             {importLoading ? 'Importing...' : 'Import Excel'}
                         </button>
                         {importResult && (
-                            <div style={{marginTop: '1rem'}}>
-                                <b>Imported:</b> {importResult.imported} <br/>
+                            <div style={{marginTop: '1rem', width: '100%'}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem'}}>
+                                    <span style={{color: '#328e6e', fontWeight: '600'}}>✓ Imported:</span>
+                                    <span style={{fontWeight: '600'}}>{importResult.imported}</span>
+                                </div>
                                 {importResult.errors.length > 0 && (
-                                    <span style={{color: 'red'}}>
-                                        Errors:<ul>{importResult.errors.map((e, i) => <li key={i}>{e}</li>)}</ul>
-                                    </span>
+                                    <div className="import-errors-container">
+                                        <div className="import-errors-header">
+                                            <span style={{color: '#e74c3c', fontWeight: '600'}}>⚠ Errors ({importResult.errors.length}):</span>
+                                        </div>
+                                        <div className="import-errors-list">
+                                            {importResult.errors.map((error, i) => (
+                                                <div key={i} className="import-error-item">
+                                                    {error}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         )}
@@ -404,59 +473,180 @@ const ManageQuestions = () => {
                 <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} aria-label="Next Page">Next</button>
             </div>
 
-            <Modal isOpen={isModalOpen} onRequestClose={closeModal} 
-                className="admin-modal-card"
-                overlayClassName="admin-modal-overlay"
-                style={{content: {inset: '20px', maxWidth: '800px', margin: 'auto'}}}>
-                <h2>{editingQuestion?.id ? 'Edit' : 'Create'} Question</h2>
-                {editingQuestion && (
-                    <form onSubmit={handleSave} className="admin-form" style={{maxHeight: '80vh', overflowY: 'auto'}}>
-                        {/* Category and Difficulty */}
-                        <select name="categoryId" value={editingQuestion.category?.id || ''} onChange={handleInputChange} required>
-                            <option value="">Select Category</option>
-                            {categories.map(c => <option key={c.id} value={c.id}>{c.nameEn}</option>)}
-                        </select>
-                        <select name="difficulty" value={editingQuestion.difficulty || 1} onChange={handleInputChange} required>
-                            <option value="1">Easy</option>
-                            <option value="2">Medium</option>
-                            <option value="3">Hard</option>
-                        </select>
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal}
+                className="question-modal"
+                overlayClassName="upload-modal-overlay"
+            >
+                <div className="question-modal-content">
+                    <button
+                        className="upload-close-btn"
+                        onClick={closeModal}
+                        title="Close"
+                        aria-label="Close"
+                    >
+                        <FaTimes size={26} color="#328e6e" />
+                    </button>
+                    <h2>{editingQuestion?.id ? 'Edit Question' : 'Add Question'}</h2>
+                    {editingQuestion && (
+                        <form onSubmit={handleSave} className="question-form">
+                            <div className="form-section">
+                                <label>Category</label>
+                                <select name="categoryId" value={editingQuestion.category?.id || ''} onChange={handleInputChange} required>
+                                    <option value="">Select Category</option>
+                                    {categories.map(c => (
+                                        <option key={c.id} value={c.id}>{c.nameEn}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-section">
+                                <label>Difficulty</label>
+                                <select name="difficulty" value={editingQuestion.difficulty || 1} onChange={handleInputChange} required>
+                                    <option value="1">Easy</option>
+                                    <option value="2">Medium</option>
+                                    <option value="3">Hard</option>
+                                </select>
+                            </div>
 
-                        {/* Multilingual Fields */}
-                        <fieldset><legend>Question Text</legend>
-                            <input name="questionTextFr" value={editingQuestion.questionTextFr || ''} onChange={handleInputChange} placeholder="Question (FR)" />
-                            <input name="questionTextEn" value={editingQuestion.questionTextEn || ''} onChange={handleInputChange} placeholder="Question (EN)" required />
-                            <input name="questionTextAr" value={editingQuestion.questionTextAr || ''} onChange={handleInputChange} placeholder="Question (AR)" />
-                        </fieldset>
-                        <fieldset><legend>Correct Answer</legend>
-                            <input name="correctAnswerFr" value={editingQuestion.correctAnswerFr || ''} onChange={handleInputChange} placeholder="Correct Answer (FR)" />
-                            <input name="correctAnswerEn" value={editingQuestion.correctAnswerEn || ''} onChange={handleInputChange} placeholder="Correct Answer (EN)" required />
-                            <input name="correctAnswerAr" value={editingQuestion.correctAnswerAr || ''} onChange={handleInputChange} placeholder="Correct Answer (AR)" />
-                        </fieldset>
-                        <fieldset><legend>Trap Answer</legend>
-                            <input name="trapAnswerFr" value={editingQuestion.trapAnswerFr || ''} onChange={handleInputChange} placeholder="Trap Answer (FR)" />
-                            <input name="trapAnswerEn" value={editingQuestion.trapAnswerEn || ''} onChange={handleInputChange} placeholder="Trap Answer (EN)" />
-                            <input name="trapAnswerAr" value={editingQuestion.trapAnswerAr || ''} onChange={handleInputChange} placeholder="Trap Answer (AR)" />
-                        </fieldset>
-                        
-                        <fieldset><legend>Fallback Options</legend>
-                            {editingQuestion.fallbackOptions?.map((opt, i) => (
-                                <div key={i} style={{display: 'flex', gap: '0.5rem', marginBottom: '0.5rem'}}>
-                                    <input name="fallbackFr" value={opt.fallbackFr} onChange={e => handleFallbackChange(i, e)} placeholder={`Fallback ${i+1} (FR)`} />
-                                    <input name="fallbackEn" value={opt.fallbackEn} onChange={e => handleFallbackChange(i, e)} placeholder={`Fallback ${i+1} (EN)`} />
-                                    <input name="fallbackAr" value={opt.fallbackAr} onChange={e => handleFallbackChange(i, e)} placeholder={`Fallback ${i+1} (AR)`} />
+                            <div className="form-section">
+                                <label>Question Text</label>
+                                <div className="input-group multi-input">
+                                    <input
+                                        name="questionTextFr"
+                                        value={editingQuestion.questionTextFr || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Question (FR)"
+                                    />
+                                    <input
+                                        name="questionTextEn"
+                                        value={editingQuestion.questionTextEn || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Question (EN)"
+                                        required
+                                    />
+                                    <input
+                                        name="questionTextAr"
+                                        value={editingQuestion.questionTextAr || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Question (AR)"
+                                    />
                                 </div>
-                            ))}
-                            <button type="button" className="admin-btn" style={{width: 'auto', minWidth: '2.5rem', padding: '0.5rem 1rem', fontSize: '1.2rem', marginTop: '0.5rem'}} onClick={handleAddFallback}>+
-                            </button>
-                        </fieldset>
+                            </div>
 
-                        <div style={{width: '100%', display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem'}}>
-                            <button type="button" className="admin-btn-secondary" onClick={closeModal}>Cancel</button>
-                            <button type="submit" className="admin-btn">Save</button>
-                        </div>
-                    </form>
-                )}
+                            <div className="form-section">
+                                <label>Correct Answer</label>
+                                <div className="input-group multi-input">
+                                    <input
+                                        name="correctAnswerFr"
+                                        value={editingQuestion.correctAnswerFr || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Correct Answer (FR)"
+                                    />
+                                    <input
+                                        name="correctAnswerEn"
+                                        value={editingQuestion.correctAnswerEn || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Correct Answer (EN)"
+                                        required
+                                    />
+                                    <input
+                                        name="correctAnswerAr"
+                                        value={editingQuestion.correctAnswerAr || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Correct Answer (AR)"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-section">
+                                <label>Trap Answer</label>
+                                <div className="input-group multi-input">
+                                    <input
+                                        name="trapAnswerFr"
+                                        value={editingQuestion.trapAnswerFr || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Trap Answer (FR)"
+                                    />
+                                    <input
+                                        name="trapAnswerEn"
+                                        value={editingQuestion.trapAnswerEn || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Trap Answer (EN)"
+                                    />
+                                    <input
+                                        name="trapAnswerAr"
+                                        value={editingQuestion.trapAnswerAr || ''}
+                                        onChange={handleInputChange}
+                                        placeholder="Trap Answer (AR)"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-section">
+                                <label>Fallback Options</label>
+                                {editingQuestion.fallbackOptions?.map((opt, i) => (
+                                    <div className='fallback-set' key={i} style={{ marginBottom: '1.5rem' }}>
+                                        <div className="fallback-set fallback-group" >
+                                                <input
+                                                    name="fallbackFr"
+                                                    value={opt.fallbackFr}
+                                                    onChange={e => handleFallbackChange(i, e)}
+                                                    placeholder={`Fallback ${i + 1} (FR)`}
+                                                />
+                                                <input
+                                                    name="fallbackEn"
+                                                    value={opt.fallbackEn}
+                                                    onChange={e => handleFallbackChange(i, e)}
+                                                    placeholder={`Fallback ${i + 1} (EN)`}
+                                                />
+                                                <input
+                                                    name="fallbackAr"
+                                                    value={opt.fallbackAr}
+                                                    onChange={e => handleFallbackChange(i, e)}
+                                                    placeholder={`Fallback ${i + 1} (AR)`}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="delete-fallback-btn"
+                                                    onClick={() => handleDeleteFallback(i)}
+                                                    title="Delete Fallback"
+                                                    aria-label="Delete Fallback"
+                                                >
+                                                    <FaTrash size={18} color="#c0392b" />
+                                                </button>
+                                        </div>
+       
+                                    </div>
+                                ))}
+
+                                
+                                <button
+                                    type="button"
+                                    className="admin-icon-btn"
+                                    style={{ width: 'auto', minWidth: '2.5rem', padding: '0.5rem 1rem', fontSize: '1.2rem', marginTop: '0.5rem' }}
+                                    onClick={handleAddFallback}
+                                    title="Add Fallback Option"
+                                    aria-label="Add Fallback Option"
+                                >
+                                    <FaPlus size={18} />
+                                </button>
+                            </div>
+
+                            {errorMessage && <div className="error-message" style={{ color: 'white', marginTop: '0.5rem' }}>{errorMessage}</div>}
+
+                            <div className="form-actions" style={{ position: 'sticky', bottom: 0, background: '#fff', padding: '1rem', borderTop: '1px solid #b6e2c6', marginTop: 'auto' }}>
+                                <button type="button" className="admin-btn-secondary" onClick={closeModal}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="admin-btn">
+                                    Save
+                                </button>
+                            </div>
+
+                        </form>
+                    )}
+                </div>
             </Modal>
         </div>
     );
