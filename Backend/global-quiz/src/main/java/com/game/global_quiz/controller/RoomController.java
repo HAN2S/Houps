@@ -1,25 +1,35 @@
 package com.game.global_quiz.controller;
 
-import com.game.global_quiz.dto.PlayerDTO;
-import com.game.global_quiz.dto.RoomSettingsDTO;
-import com.game.global_quiz.dto.CreateRoomRequestDTO;
-import com.game.global_quiz.dto.RoomJoinResponseDTO;
-import com.game.global_quiz.model.GameSession;
-import com.game.global_quiz.service.GameService;
-import com.game.global_quiz.service.CategoryService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.game.global_quiz.dto.CreateRoomRequestDTO;
+import com.game.global_quiz.dto.PlayerDTO;
+import com.game.global_quiz.dto.RoomJoinResponseDTO;
+import com.game.global_quiz.dto.RoomSettingsDTO;
+import com.game.global_quiz.model.GameSession;
+import com.game.global_quiz.service.CategoryService;
+import com.game.global_quiz.service.GameService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/rooms")
@@ -202,7 +212,14 @@ public class RoomController {
             // Generate unique ID for player
             String playerId = UUID.randomUUID().toString();
             logger.info("Generated player ID {} for session ID: {}", playerId, sessionId);
-            
+            Optional<GameSession> updatedSession = Optional.of(gameService.getSession(sessionId));
+
+            if(!updatedSession.isPresent()){
+                logger.warn("Session is not found or empty for session ID: {}", sessionId);
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Session Not Found");
+                return ResponseEntity.notFound().build();
+            }
             // Add player to session
             gameService.addPlayerToSession(
                 sessionId,
@@ -211,9 +228,10 @@ public class RoomController {
                 player.getAvatarUrl()
             );
             
-            GameSession updatedSession = gameService.getSession(sessionId);
-            logger.info("Successfully joined player {} to session ID: {}", playerId, sessionId);
-            RoomJoinResponseDTO response = new RoomJoinResponseDTO(updatedSession, playerId, categoryService);
+            
+
+            logger.info("Successfully joined player {} to session ID e: {}", playerId, updatedSession);
+            RoomJoinResponseDTO response = new RoomJoinResponseDTO(updatedSession.get(), playerId, categoryService);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             logger.error("Invalid argument while joining room {}: {}", sessionId, e.getMessage(), e);

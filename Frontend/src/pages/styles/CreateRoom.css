@@ -86,8 +86,8 @@
   
   /* Form group styling */
   .form-group {
-    display: flex;
-    flex-direction: column;
+    display: inline-flex;
+    flex-direction: row;
     gap: 0.75rem;
     width: 100%;
     color: black;
@@ -103,7 +103,7 @@
   
   /* Input field styling */
   .input-field {
-    width: 100%;
+    max-width: 100%;
     padding: 0.875rem 1rem;
     border: 1px solid #d1d5db;
     border-radius: 0.5rem;
@@ -349,15 +349,7 @@
     }
   }
 
-  .players-bar-wrapper {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto 2rem auto; /* Center and add bottom margin */
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
 
-  }
   .create-room-players-bar-container {
     background: #90C67C;
     border-radius: 0 0 0.75rem 0.75rem;

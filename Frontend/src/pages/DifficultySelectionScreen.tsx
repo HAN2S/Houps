@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import PlayersBar from './PlayersBar';
 import TimerContainer from '../components/TimerContainer';
 import RoundCounter from '../components/RoundCounter';
-import './styles/CreateRoom.css';
+
 import './styles/Buttons.css';
 import './styles/DifficultySelection.css';
 

@@ -1,0 +1,859 @@
+/* Shared Design System - Based on Home Screen */
+/* Import this file in all quiz screens and lobby for consistent design */
+
+/* Global fixes for small screens */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Global Background */
+.shared-background {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+  /* Ensure proper centering regardless of language direction */
+  text-align: center;
+}
+
+/* Animated Background */
+.shared-background-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.shared-floating-shapes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.shared-shape {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(45deg, rgba(103, 174, 110, 0.1), rgba(225, 238, 188, 0.1));
+  animation: sharedFloat 6s ease-in-out infinite;
+}
+
+.shared-shape-1 {
+  width: 80px;
+  height: 80px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.shared-shape-2 {
+  width: 120px;
+  height: 120px;
+  top: 60%;
+  right: 15%;
+  animation-delay: 2s;
+}
+
+.shared-shape-3 {
+  width: 60px;
+  height: 60px;
+  bottom: 20%;
+  left: 20%;
+  animation-delay: 4s;
+}
+
+@keyframes sharedFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+/* Main Content Container */
+.shared-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 90%;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  gap: 2rem;
+  /* Ensure proper centering regardless of language direction */
+  margin: 0 auto;
+  box-sizing: border-box;
+  /* Prevent overflow on small screens */
+  overflow-x: hidden;
+}
+
+/* Header Section */
+.shared-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.shared-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  direction: ltr;
+}
+
+.shared-logo-icon {
+  font-size: 3rem;
+  color: #67AE6E;
+  filter: drop-shadow(0 0 10px rgba(103, 174, 110, 0.5));
+}
+
+.shared-title {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #67AE6E, #E1EEBC);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.shared-subtitle {
+  font-size: 1.1rem;
+  color: #E1EEBC;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 300;
+}
+
+/* Card Design */
+.shared-card {
+  background: #67AE6E;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 1rem;
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  /* Prevent overflow on small screens */
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.shared-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  z-index: 1;
+}
+
+.shared-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.shared-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+}
+
+.shared-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  /* Ensure consistent layout in RTL */
+  direction: ltr;
+}
+
+.shared-card-icon {
+  font-size: 2rem;
+  color: #ffffff;
+}
+
+.shared-card-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Input Fields */
+.shared-input-group {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.shared-input-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  /* Ensure consistent layout in RTL */
+  direction: ltr;
+}
+
+.shared-input-icon {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.shared-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.shared-input-field {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 2px solid #ffffff;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #1f2937;
+  font-size: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+.shared-input-field::placeholder {
+  color: rgba(31, 41, 55, 0.7);
+}
+
+.shared-input-field:focus {
+  outline: none;
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Buttons */
+.shared-button-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.shared-button-primary,
+.shared-button-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.shared-button-primary {
+  background: linear-gradient(135deg, #67AE6E);
+  color: #ffffff;
+  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.3);
+}
+
+.shared-button-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(255, 255, 255, 0.4);
+}
+
+.shared-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.shared-button-secondary {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.shared-button-secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+  border-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.shared-button-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.shared-button-icon {
+  font-size: 1rem;
+}
+
+.shared-button-full-width {
+  width: 100%;
+}
+
+/* Grid Layout */
+.shared-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  /* Ensure proper centering regardless of language direction */
+  margin: 0 auto;
+  /* Prevent overflow on small screens */
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.shared-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* Ensure consistent layout in RTL */
+  direction: ltr;
+}
+
+.shared-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* Ensure consistent layout in RTL */
+  direction: ltr;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .shared-content {
+    gap: 1.5rem;
+    max-width: 90%;
+    margin: 0 auto;
+  }
+  
+  .shared-logo-container {
+    gap: 0.75rem;
+  }
+  
+  .shared-logo-icon {
+    font-size: 2.5rem;
+  }
+  
+  .shared-title {
+    font-size: 2.5rem;
+  }
+  
+  .shared-subtitle {
+    font-size: 1rem;
+  }
+  
+  .shared-card {
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+    max-width: 100%;
+  }
+  
+  .shared-card-header {
+    gap: 0.75rem;
+  }
+  
+  .shared-card-icon {
+    font-size: 1.75rem;
+  }
+  
+  .shared-card-title {
+    font-size: 2rem;
+  }
+  
+  .shared-input-field {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  
+  .shared-button-primary,
+  .shared-button-secondary {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .shared-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .shared-title {
+    font-size: 2rem;
+  }
+  
+  .shared-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .shared-card {
+    padding: 1rem 0.75rem;
+    max-width: 100%;
+  }
+  
+  .shared-card-title {
+    font-size: 1.75rem;
+  }
+  
+  .shared-input-field {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .shared-button-primary,
+  .shared-button-secondary {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .shared-button-icon {
+    font-size: 0.8rem;
+  }
+}
+
+/* Animation for page load */
+@keyframes sharedFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shared-header,
+.shared-card {
+  animation: sharedFadeInUp 0.8s ease-out;
+}
+
+.shared-card {
+  animation-delay: 0.2s;
+}
+
+/* Focus states for accessibility */
+.shared-input-field:focus,
+.shared-button-primary:focus,
+.shared-button-secondary:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.shared-button-primary:disabled,
+.shared-button-secondary:disabled {
+  position: relative;
+}
+
+.shared-button-primary:disabled::after,
+.shared-button-secondary:disabled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1rem;
+  height: 1rem;
+  margin: -0.5rem 0 0 -0.5rem;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: sharedSpin 1s linear infinite;
+}
+
+@keyframes sharedSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Room Details Styling */
+.room-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.room-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  /* Ensure consistent layout in RTL */
+  direction: ltr;
+}
+
+.room-detail-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(5px);
+}
+
+.detail-icon {
+  font-size: 1.5rem;
+  color: #ffffff;
+  min-width: 1.5rem;
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 1.125rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Responsive adjustments for room details */
+@media (max-width: 768px) {
+  .room-details {
+    gap: 0.75rem;
+  }
+  
+  .room-detail-item {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .detail-icon {
+    font-size: 1.25rem;
+    min-width: 1.25rem;
+  }
+  
+  .detail-label {
+    font-size: 0.8rem;
+  }
+  
+  .detail-value {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .room-detail-item {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .detail-icon {
+    font-size: 1rem;
+    min-width: 1rem;
+  }
+  
+  .detail-label {
+    font-size: 0.75rem;
+  }
+  
+  .detail-value {
+    font-size: 0.9rem;
+  }
+}
+
+/* Host Status Styling */
+.host-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Ensure consistent layout in RTL */
+  direction: ltr;
+}
+
+.host-badge {
+  background: linear-gradient(135deg, #67AE6E, #E1EEBC);
+  color: #1a1a2e;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.host-message {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Improved Responsive Design */
+@media (max-width: 1024px) {
+  .shared-grid {
+    grid-template-columns: 1fr 280px;
+    gap: 1.5rem;
+  }
+  
+  .shared-card {
+    padding: 1.5rem;
+  }
+  
+  .shared-card-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 970px) {
+  .shared-content {
+    gap: 1rem;
+    max-width: 95%;
+    margin: 0 auto;
+    padding: 0 0.5rem;
+  }
+  
+  .shared-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .shared-main {
+    gap: 1rem;
+  }
+  
+  .shared-sidebar {
+    gap: 1rem;
+  }
+  
+  .shared-card {
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+    max-width: 100%;
+  }
+  
+  .shared-card-header {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .shared-card-icon {
+    font-size: 1.5rem;
+  }
+  
+  .shared-card-title {
+    font-size: 1.75rem;
+  }
+  
+  .shared-title {
+    font-size: 2rem;
+  }
+  
+  .shared-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .shared-logo-icon {
+    font-size: 2rem;
+  }
+  
+  .room-details {
+    gap: 0.5rem;
+  }
+  
+  .room-detail-item {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .detail-icon {
+    font-size: 1.25rem;
+    min-width: 1.25rem;
+  }
+  
+  .detail-label {
+    font-size: 0.75rem;
+  }
+  
+  .detail-value {
+    font-size: 0.95rem;
+  }
+  
+  .host-status {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .host-badge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
+  .host-message {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .shared-content {
+    max-width: 98%;
+    margin: 0 auto;
+    padding: 0 0.25rem;
+    gap: 0.75rem;
+  }
+  
+  .shared-card {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+  
+  .shared-card-header {
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .shared-card-icon {
+    font-size: 1.25rem;
+  }
+  
+  .shared-card-title {
+    font-size: 1.5rem;
+  }
+  
+  .shared-title {
+    font-size: 1.75rem;
+  }
+  
+  .shared-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .shared-logo-icon {
+    font-size: 1.75rem;
+  }
+  
+  .room-detail-item {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .detail-icon {
+    font-size: 1rem;
+    min-width: 1rem;
+  }
+  
+  .detail-label {
+    font-size: 0.7rem;
+  }
+  
+  .detail-value {
+    font-size: 0.85rem;
+  }
+  
+  .host-status {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .host-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+  }
+  
+  .host-message {
+    font-size: 0.8rem;
+  }
+  
+  .shared-button-primary,
+  .shared-button-secondary {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .shared-button-icon {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .shared-content {
+    max-width: 100%;
+    padding: 0 0.25rem;
+    gap: 0.5rem;
+  }
+  
+  .shared-card {
+    padding: 0.75rem 0.5rem;
+    max-width: 100%;
+  }
+  
+  .shared-card-title {
+    font-size: 1.25rem;
+  }
+  
+  .shared-title {
+    font-size: 1.5rem;
+  }
+  
+  .room-detail-item {
+    padding: 0.4rem;
+    gap: 0.4rem;
+  }
+  
+  .detail-icon {
+    font-size: 0.9rem;
+    min-width: 0.9rem;
+  }
+  
+  .detail-label {
+    font-size: 0.65rem;
+  }
+  
+  .detail-value {
+    font-size: 0.8rem;
+  }
+}

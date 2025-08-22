@@ -47,10 +47,6 @@ const GameSettingsCard: React.FC<GameSettingsCardProps> = ({
   // Note: ThemeCheckboxDropdown might need to be integrated or passed theme options
   // For now, assuming it works as is with passed props.
 
-  // Button logic
-  const showStartGame = isHost && sessionStatus === 'WAITING_FOR_PLAYERS';
-  const showReadyButton = !isHost && sessionStatus === 'WAITING_FOR_PLAYERS';
-
   const handleNumQuestionsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = Number(e.target.value);
     setNumQuestions(newValue);
@@ -68,9 +64,7 @@ const GameSettingsCard: React.FC<GameSettingsCardProps> = ({
   };
 
   return (
-    <div className="game-settings-card"> {/* Reusing 'play-card' style */}
-        <div className="game-settings-title-bar">{t('gameSettings')}</div>
-
+    <div className="game-settings-card">
       <div className="game-settings-content">
         {error && <p className="error-message">{error}</p>}
 
@@ -161,23 +155,6 @@ const GameSettingsCard: React.FC<GameSettingsCardProps> = ({
 
           </div>
         </div>
-         {/* The main Start Game button might be outside the grid, like in the image */}
-           {showStartGame && (
-             <button
-                onClick={handleCreateRoom}
-                className="button-primary button-full-width py-3 mt-4"
-              >
-                {t('startGame')}
-              </button>
-           )}
-           {showReadyButton && (
-             <button
-                onClick={handleReadyToggle}
-                className={`button-primary button-full-width py-3 mt-4 ${isReady ? 'ready' : ''}`}
-              >
-                {isReady ? t('notReady') : t('ready')}
-              </button>
-           )}
       </div>
     </div>
   );

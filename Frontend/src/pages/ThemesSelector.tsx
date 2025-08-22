@@ -23,20 +23,18 @@ const ThemesSelector: React.FC<ThemesSelectorProps> = ({
     const { t } = useTranslation();
 
     return (
-        <div className="themes-selector-card"> {/* Reusing 'play-card' style */}
-            <div className="themes-selector-grid-content">
-                <div className="themes-grid"> {/* Grid or flex for themes */}
-                    {allThemes.map(theme => (
-                        <button
-                            key={theme.value}
-                            className={`theme-button ${selectedThemes.includes(theme.value) ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
-                            onClick={() => !disabled && onThemeToggle(theme.value)}
-                            disabled={disabled}
-                        >
-                            {theme.label}
-                        </button>
-                    ))}
-                </div>
+        <div className="themes-selector-content">
+            <div className="themes-grid">
+                {allThemes.map(theme => (
+                    <button
+                        key={theme.value}
+                        className={`theme-button ${selectedThemes.includes(theme.value) ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+                        onClick={() => !disabled && onThemeToggle(theme.value)}
+                        disabled={disabled}
+                    >
+                        {theme.label}
+                    </button>
+                ))}
             </div>
         </div>
     );

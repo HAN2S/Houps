@@ -131,30 +131,58 @@
 
 .answer-input {
   flex-grow: 1;
-  border: 1px solid #67AE6E;
-  background-color: #fff;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
+  border: 2px solid #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
   font-size: 1rem;
-  color: #2f2f2f;
-  }
+  color: #1f2937;
+  text-align: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+.answer-input::placeholder {
+  color: rgba(31, 41, 55, 0.7);
+}
 
 .answer-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #67AE6E;
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 .submit-button {
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  background-color: #84AE92;
-  color: white;
+  padding: 1rem 2rem;
   border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #67AE6E);
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.3);
 }
 
-.submit-button:hover {
-  opacity: 0.9;
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(255, 255, 255, 0.4);
+}
+
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submit-button:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 
 .players-section {
@@ -178,17 +206,35 @@
 }
 
 .option-btn {
-  padding: 10px;
+  padding: 1rem 2rem;
   font-size: 1rem;
-  border: none;
-  border-radius: 50px;
-  background-color: #84AE92; /* Button background */
-  color: #fff; /* Button text */
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  color: #ffffff;
   cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.option-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+  border-color: #ffffff;
+  transform: translateY(-2px);
 }
 
 .option-btn.selected {
-  background-color: #6e8f7a; /* Darker shade for selected */
+  background: linear-gradient(135deg, #67AE6E);
+  border-color: #ffffff;
+  color: #ffffff;
+  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.3);
+}
+
+.option-btn:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 
 .results {

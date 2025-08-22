@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaUsers, FaPlay, FaCog, FaCheck, FaInfo, FaGamepad, FaClock, FaTrophy } from 'react-icons/fa';
 import PlayersBar from './PlayersBar';
 import GameSettingsCard from './GameSettingsCard';
 import ThemesSelector from './ThemesSelector';
 import axios from 'axios';
-import './styles/CreateRoom.css';
+import '../styles/shared.css';
 import './styles/Buttons.css';
 import i18n from '../utils/i18n';
 import LanguageSelector from '../components/LanguageSelector';
@@ -123,76 +124,201 @@ const Lobby: React.FC<LobbyProps> = ({ session }) => {
     });
   };
 
-  const handleLanguageChange = async (lang: string) => {
-    if (!isHost) {
-      setError('Only the host can change language');
-      return;
-    }
-    await updateRoomSettings({
-      categories: selectedCategoryIds,
-      maxPlayers: session.maxPlayers,
-      totalRounds: numQuestions,
-      timePerQuestion: timer,
-      language: lang
-    });
-    i18n.changeLanguage(lang);
-  };
-
   const updateRoomSettings = async (settings: any) => {
     try {
       await axios.put(`http://localhost:8081/api/rooms/${session.sessionId}/settings`, settings);
       setError('');
     } catch (err) {
-      setError('Error updating settings');
+      setError('Error updating room settings');
     }
   };
 
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
+
+  if (!session) {
+    return (
+      <div className="shared-background">
+        <div className="shared-background-animation">
+          <div className="shared-floating-shapes">
+            <div className="shared-shape shared-shape-1"></div>
+            <div className="shared-shape shared-shape-2"></div>
+            <div className="shared-shape shared-shape-3"></div>
+          </div>
+        </div>
+        <div className="shared-content">
+          <div className="loading">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="create-room-container">
-      <div className="create-room-content">
-        <div></div>
-        <div className="create-room-players-section">
-          <h3 className="create-room-players-title">
-            {t('Players')}
-          </h3>
-          <div className="create-room-players-bar-container">
-            <PlayersBar players={players} layout="horizontal" />
+    <div className="shared-background">
+      <div className="shared-background-animation">
+        <div className="shared-floating-shapes">
+          <div className="shared-shape shared-shape-1"></div>
+          <div className="shared-shape shared-shape-2"></div>
+          <div className="shared-shape shared-shape-3"></div>
+        </div>
+      </div>
+      
+      <div className="shared-content">
+        {/* Language Flags in Top-Right */}
+        <LanguageSelector currentLanguage={i18n.language} onChange={changeLanguage} />
+
+        <div className="shared-header">
+          <div className="shared-logo-container">
+            <FaGamepad className="shared-logo-icon" />
+            <h1 className="shared-title">HOUPS</h1>
+          </div>
+          <p className="shared-subtitle">{t('lobbySubtitle') || 'Waiting for players to join...'}</p>
+        </div>
+
+        <div className="shared-grid">
+          <div className="shared-main">
+            {/* Players Bar */}
+            <div className="shared-card">
+              <div className="shared-card-header">
+                <FaUsers className="shared-card-icon" />
+                <h2 className="shared-card-title">{t('players') || 'PLAYERS'}</h2>
+              </div>
+              <PlayersBar players={players} />
+            </div>
+
+            {/* Game Settings */}
+            <div className="shared-card">
+              <div className="shared-card-header">
+                <FaCog className="shared-card-icon" />
+                <h2 className="shared-card-title">{t('gameSettings') || 'GAME SETTINGS'}</h2>
+              </div>
+              <GameSettingsCard
+                themes={themes}
+                setThemes={() => {}}
+                numQuestions={numQuestions}
+                setNumQuestions={() => {}}
+                timer={timer}
+                setTimer={() => {}}
+                roomCode={session.sessionId || ''}
+                error={error}
+                handleCreateRoom={() => {}}
+                handleReadyToggle={() => {}}
+                isHost={isHost}
+                isReady={isReady}
+                sessionStatus={sessionStatus}
+                onNumQuestionsChange={handleNumQuestionsChange}
+                onTimerChange={handleTimerChange}
+              />
+            </div>
+
+            {/* Themes Selector */}
+            <div className="shared-card">
+              <div className="shared-card-header">
+                <FaCog className="shared-card-icon" />
+                <h2 className="shared-card-title">{t('themes') || 'THEMES'}</h2>
+              </div>
+              <ThemesSelector
+                allThemes={themeList}
+                selectedThemes={selectedThemes}
+                onThemeToggle={handleThemeToggle}
+                disabled={!isHost}
+              />
+            </div>
+          </div>
+
+          <div className="shared-sidebar">
+            {/* Room Details */}
+            <div className="shared-card">
+              <div className="shared-card-header">
+                <FaInfo className="shared-card-icon" />
+                <h2 className="shared-card-title">{t('roomInfo') || 'ROOM INFO'}</h2>
+              </div>
+              
+              <div className="room-details">
+                <div className="room-detail-item">
+                  <FaGamepad className="detail-icon" />
+                  <div className="detail-content">
+                    <span className="detail-label">{t('roomCode') || 'Room Code'}</span>
+                    <span className="detail-value">{session.sessionId}</span>
+                  </div>
+                </div>
+                
+                <div className="room-detail-item">
+                  <FaUsers className="detail-icon" />
+                  <div className="detail-content">
+                    <span className="detail-label">{t('players') || 'Players'}</span>
+                    <span className="detail-value">{players.length}/{session.maxPlayers}</span>
+                  </div>
+                </div>
+                
+                <div className="room-detail-item">
+                  <FaCheck className="detail-icon" />
+                  <div className="detail-content">
+                    <span className="detail-label">{t('readyPlayers') || 'Ready'}</span>
+                    <span className="detail-value">{players.filter((p: any) => p.ready).length}</span>
+                  </div>
+                </div>
+                
+                <div className="room-detail-item">
+                  <FaClock className="detail-icon" />
+                  <div className="detail-content">
+                    <span className="detail-label">{t('status') || 'Status'}</span>
+                    <span className="detail-value">{sessionStatus}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Player Actions */}
+            {!isHost && (
+            <div className="shared-card">
+              <div className="shared-card-header">
+                <FaCheck className="shared-card-icon" />
+                <h2 className="shared-card-title">{t('yourStatus') || 'YOUR STATUS'}</h2>
+              </div>
+              
+              <div className="shared-button-group">
+                
+                  <button
+                    onClick={handleReadyToggle}
+                    className={`shared-button-secondary ${isReady ? 'ready' : ''}`}
+                  >
+                    <FaCheck className="shared-button-icon" />
+                    {isReady ? t('notReady') || 'NOT READY' : t('ready') || 'READY'}
+                  </button>
+               
+              </div>
+            </div>
+             )}
+            {/* Host Actions */}
+            {isHost && (
+              <div className="shared-card">
+                <div className="shared-card-header">
+                  <FaPlay className="shared-card-icon" />
+                  <h2 className="shared-card-title">{t('hostActions') || 'HOST ACTIONS'}</h2>
+                </div>
+                
+                <div className="shared-button-group">
+                  <button
+                    onClick={handleStartGame}
+                    className="shared-button-primary shared-button-full-width"
+                    disabled={!players.every((p: any) => p.ready)}
+                  >
+                    <FaPlay className="shared-button-icon" />
+                    {t('startGame') || 'START GAME'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        <GameSettingsCard
-          themes={themes}
-          setThemes={() => {}}
-          numQuestions={numQuestions}
-          setNumQuestions={() => {}}
-          timer={timer}
-          setTimer={() => {}}
-          roomCode={session.sessionId || ''}
-          error={error}
-          handleCreateRoom={handleStartGame}
-          handleReadyToggle={handleReadyToggle}
-          isHost={isHost}
-          isReady={isReady}
-          sessionStatus={sessionStatus}
-          onNumQuestionsChange={handleNumQuestionsChange}
-          onTimerChange={handleTimerChange}
-        />
-
-        <div className="create-room-themes-section">
-          <h3 className="create-room-themes-title">
-            {t('themes')}
-          </h3>
-          <div className="create-room-themes-selector-container">
-            <ThemesSelector
-              allThemes={themeList}
-              selectedThemes={selectedThemes}
-              onThemeToggle={handleThemeToggle}
-              disabled={!isHost}
-            />
+        {error && (
+          <div className="error-message">
+            {error}
           </div>
-        </div>
-        <LanguageSelector currentLanguage={session.language} onChange={handleLanguageChange} />
-        <div></div>
+        )}
       </div>
     </div>
   );

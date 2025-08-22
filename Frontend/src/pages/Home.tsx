@@ -2,6 +2,16 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { 
+  FaChevronLeft, 
+  FaChevronRight, 
+  FaUser, 
+  FaGamepad, 
+  FaUsers, 
+  FaSignInAlt,
+  FaPlus,
+  FaHome
+} from 'react-icons/fa';
 import './styles/Home.css';
 import './styles/Buttons.css';
 import LanguageSelector from '../components/LanguageSelector';
@@ -120,54 +130,102 @@ const Home: React.FC = () => {
 
   return (
     <div className="home-container">
-      
-      <h1 className="home-title">GlobalQuizz</h1>
+      <div className="home-background">
+        <div className="floating-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+          <div className="shape shape-3"></div>
+        </div>
+      </div>
+      <LanguageSelector currentLanguage={i18n.language} onChange={changeLanguage} />
+
       <div className="home-content">
         {/* Language Flags in Top-Right */}
-        <LanguageSelector currentLanguage={i18n.language} onChange={changeLanguage} />
+
+        <div className="home-header">
+          <div className="logo-container">
+            <FaGamepad className="logo-icon" />
+            <h1 className="home-title">HOUPS</h1>
+          </div>
+          <p className="home-subtitle">{t('welcomeMessage') || 'Test your knowledge with friends!'}</p>
+        </div>
 
         <div className="play-card">
-          <h2 className="play-title">PLAY</h2>
+          <div className="card-header">
+            <FaUsers className="card-icon" />
+            <h2 className="play-title">{t('play') || 'PLAY'}</h2>
+          </div>
           
           {/* Avatar Carousel */}
           <div className="carousel-container">
-            <label className="carousel-label text-center">{t('selectAvatar')}</label>
+            <label className="carousel-label">
+              <FaUser className="label-icon" />
+              {t('selectAvatar')}
+            </label>
             <div className="carousel-wrapper">
               <button
                 onClick={handlePrevAvatar}
                 className="carousel-arrow"
+                aria-label="Previous avatar"
               >
-                ←
+                <FaChevronLeft />
               </button>
-              <img
-                src={avatars[currentAvatarIndex]}
-                alt={`Avatar ${currentAvatarIndex + 1}`}
-                className={`carousel-image ${avatar === avatars[currentAvatarIndex] ? 'selected' : ''}`}
-                onClick={() => setAvatar(avatars[currentAvatarIndex])}
-                onError={(e) => {
-                  console.log(`Failed to load avatar ${currentAvatarIndex + 1}`);
-                  (e.target as HTMLImageElement).src = '/assets/default-avatar.png';
-                }}
-              />
+              <div className="avatar-container">
+                <img
+                  src={avatars[currentAvatarIndex]}
+                  alt={`Avatar ${currentAvatarIndex + 1}`}
+                  className={`carousel-image ${avatar === avatars[currentAvatarIndex] ? 'selected' : ''}`}
+                  onClick={() => setAvatar(avatars[currentAvatarIndex])}
+                  onError={(e) => {
+                    console.log(`Failed to load avatar ${currentAvatarIndex + 1}`);
+                    (e.target as HTMLImageElement).src = '/assets/default-avatar.png';
+                  }}
+                />
+                {avatar === avatars[currentAvatarIndex] && (
+                  <div className="avatar-selected-indicator">
+                    <FaUser />
+                  </div>
+                )}
+              </div>
               <button
                 onClick={handleNextAvatar}
                 className="carousel-arrow"
+                aria-label="Next avatar"
               >
-                →
+                <FaChevronRight />
               </button>
+            </div>
+            <div className="avatar-indicators">
+              {avatars.map((_, index) => (
+                <div
+                  key={index}
+                  className={`indicator ${currentAvatarIndex === index ? 'active' : ''}`}
+                  onClick={() => {
+                    setCurrentAvatarIndex(index);
+                    setAvatar(avatars[index]);
+                  }}
+                />
+              ))}
             </div>
           </div>
 
           {/* Pseudo Input */}
           <div className="input-group">
-            <label className="block text-lg mb-2 text-center">{t('enterPseudo')}</label>
-            <input
-              type="text"
-              value={pseudo}
-              onChange={(e) => setPseudo(e.target.value)}
-              className="input-field"
-              placeholder={t('enterPseudo')}
-            />
+            <label className="input-label">
+              <FaUser className="input-icon" />
+              {t('enterPseudo')}
+            </label>
+            <div className="input-wrapper">
+              <input
+                type="text"
+                value={pseudo}
+                onChange={(e) => setPseudo(e.target.value)}
+                className="input-field"
+                placeholder={t('enterPseudo')}
+                maxLength={14}
+              />
+            </div>
           </div>
 
           {/* Create or Join Room */}
@@ -175,26 +233,39 @@ const Home: React.FC = () => {
             <button
               onClick={handleCreateRoom}
               className="button-primary button-full-width"
+              disabled={!pseudo || !avatar}
             >
+              <FaPlus className="button-icon" />
               {t('createRoom')}
             </button>
-            <div className="flex gap-2 mt-4">
-              <input
-                type="text"
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value)}
-                className="input-field w-1/2"
-                placeholder={t('roomCode')}
-              />
-              <button
-                onClick={handleJoinRoom}
-                className="button-secondary"
-              >
-                {t('joinRoom')}
-              </button>
+            
+            <div className="join-section">
+              <div className="divider">
+                <span>{t('or') || 'OR'}</span>
+              </div>
+              
+              <div className="join-input-group">
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    value={roomCode}
+                    onChange={(e) => setRoomCode(e.target.value.toLowerCase())}
+                    className="input-field room-code-input"
+                    placeholder={t('roomCode')}
+                  />
+                </div>
+                <button
+                  onClick={handleJoinRoom}
+                  className="button-secondary"
+                  disabled={!pseudo || !avatar || !roomCode}
+                >
+                  <FaSignInAlt className="button-icon" />
+                  {t('joinRoom')}
+                </button>
+              </div>
             </div>
           </div>
-        </div>  
+        </div>
       </div>
     </div>
   );

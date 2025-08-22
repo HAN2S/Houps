@@ -1,0 +1,252 @@
+/* Language Selector Component Styles */
+.language-selector {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  direction: ltr;
+}
+
+/* Desktop version - always visible flags */
+.language-flags {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.language-flag {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.language-flag:hover,
+.language-flag.active {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.language-flag:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Mobile version - dropdown */
+.language-dropdown {
+  position: relative;
+}
+
+.language-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.language-dropdown-toggle:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.language-dropdown-toggle:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.world-icon {
+  font-size: 1rem;
+}
+
+.current-lang {
+  font-weight: 700;
+}
+
+.chevron-icon {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.language-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 120px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.language-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: left;
+  width: 100%;
+}
+
+.language-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.language-dropdown-item.active {
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}
+
+.language-flag-text {
+  font-weight: 700;
+  min-width: 1.5rem;
+}
+
+.language-name {
+  flex: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .language-selector {
+    top: 0.2rem;
+    right: 0.2rem;
+  }
+  
+  .language-flags {
+    gap: 0.25rem;
+  }
+  
+  .language-flag {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.8rem;
+  }
+  
+  .language-dropdown-toggle {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  .world-icon {
+    font-size: 0.9rem;
+  }
+  
+  .chevron-icon {
+    font-size: 0.7rem;
+  }
+  
+  .language-dropdown-menu {
+    min-width: 100px;
+    padding: 0.4rem;
+  }
+  
+  .language-dropdown-item {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .language-selector {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+  }
+  
+  .language-flag {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.7rem;
+  }
+  
+  .language-dropdown-toggle {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .world-icon {
+    font-size: 0.8rem;
+  }
+  
+  .chevron-icon {
+    font-size: 0.6rem;
+  }
+  
+  .language-dropdown-menu {
+    min-width: 90px;
+    padding: 0.3rem;
+  }
+  
+  .language-dropdown-item {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Show/hide based on screen size */
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+  
+  .desktop-only {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  
+  .mobile-only {
+    display: block !important;
+  }
+}
