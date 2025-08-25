@@ -1,20 +1,28 @@
 package com.game.global_quiz.service;
 
-import com.game.global_quiz.model.GameSession;
-import com.game.global_quiz.model.Player;
-import com.game.global_quiz.model.Question;
-import com.game.global_quiz.repository.QuestionRepository;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+
 import com.game.global_quiz.controller.RoomWebSocketController;
 import com.game.global_quiz.model.Category;
-import com.game.global_quiz.service.CategoryService;
+import com.game.global_quiz.model.GameSession;
+import com.game.global_quiz.model.Player;
+import com.game.global_quiz.model.Question;
 
 @Service
 public class GameService {
@@ -54,7 +62,7 @@ public class GameService {
         host.setUsername(username);
         host.setAvatarUrl(avatarUrl);
         host.setHost(true);
-        host.setReady(false);
+        host.setReady(true);
 
         // Get all categories from database
         List<Category> allCategories = categoryService.getAllCategories();
@@ -137,11 +145,14 @@ public class GameService {
     }
 
     public void startGame(String sessionId) {
+        if (sessionId == null) {
+            throw new IllegalArgumentException("Session ID cannot be null");
+        }
         logger.info("Attempting to start game for session: {}", sessionId);
         GameSession session = getSession(sessionId);
         if (session == null) {
             logger.error("Failed to start game - Session not found: {}", sessionId);
-            throw new IllegalArgumentException("Session not found: " + sessionId);
+            throw new IllegalStateException("Session not found: " + sessionId);
         }
 
         // Log current state before making changes

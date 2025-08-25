@@ -1,31 +1,36 @@
 package com.game.global_quiz.service;
 
-import com.game.global_quiz.model.GameSession;
-import com.game.global_quiz.model.Player;
-import com.game.global_quiz.model.Question;
-import com.game.global_quiz.model.FallbackOption;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+
+import com.game.global_quiz.controller.RoomWebSocketController;
 import com.game.global_quiz.model.Category;
+import com.game.global_quiz.model.FallbackOption;
+import com.game.global_quiz.model.GameSession;
+import com.game.global_quiz.model.Player;
+import com.game.global_quiz.model.Question;
 
 @ExtendWith(MockitoExtension.class)
 class GameServiceTest {
@@ -41,6 +46,10 @@ class GameServiceTest {
 
     @Mock
     private PlayerService playerService;
+
+    @Mock
+    private RoomWebSocketController roomWebSocketController;
+
 
     @InjectMocks
     private GameService gameService;
@@ -98,8 +107,7 @@ class GameServiceTest {
         // Arrange
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(REDIS_KEY)).thenReturn(testSession);
-        doNothing().when(playerService).resetPlayerState(any(Player.class));
-        when(questionService.getRandomQuestion(anyLong(), anyInt(), any(String.class))).thenReturn(mockQuestion);
+        // No player state reset or question fetch is expected at start
 
         // Act
         gameService.startGame(TEST_SESSION_ID);
@@ -107,9 +115,11 @@ class GameServiceTest {
         // Assert
         assertEquals(GameSession.GameStatus.IN_PROGRESS, testSession.getStatus());
         assertNotNull(testSession.getStartTime());
-        assertEquals(mockQuestion.getId(), testSession.getCurrentQuestionId());
+        assertEquals(1, testSession.getCurrentRound());
+        assertEquals(GameSession.QuestionPhase.CATEGORY_SELECTION, testSession.getCurrentPhase());
+        assertNull(testSession.getCurrentQuestionId());
+        verify(questionService, times(0)).getRandomQuestion(anyLong(), anyInt(), any(String.class));
         verify(valueOperations).set(eq(REDIS_KEY), eq(testSession), eq(Duration.ofHours(2)));
-        verify(questionService, times(1)).getRandomQuestion(anyLong(), anyInt(), any(String.class));
     }
 
     @Test
@@ -185,14 +195,13 @@ class GameServiceTest {
         // Arrange
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(REDIS_KEY)).thenReturn(testSession);
-        doNothing().when(playerService).resetPlayerState(any(Player.class));
-        when(questionService.getRandomQuestion(anyLong(), anyInt(), any(String.class))).thenReturn(mockQuestion);
+        // No stubbing for playerService or questionService needed; startGame should not fetch a question
 
         // Act
         gameService.startGame(TEST_SESSION_ID);
 
         // Assert
-        verify(questionService, times(1)).getRandomQuestion(anyLong(), anyInt(), any(String.class));
-        assertEquals(mockQuestion.getId(), testSession.getCurrentQuestionId());
+        verify(questionService, times(0)).getRandomQuestion(anyLong(), anyInt(), any(String.class));
+        assertNull(testSession.getCurrentQuestionId());
     }
 } 

@@ -1,7 +1,6 @@
 package com.game.global_quiz.dto;
 
 import java.util.List;
-import com.game.global_quiz.dto.FallbackOptionDTO;
 
 public class QuestionDTO {
     private Long id;
